@@ -7,6 +7,7 @@ import { spinner } from './utils';
 // gets API Key from environment variable BROWSER_USE_API_KEY
 const browseruse = new BrowserUse();
 
+// Define Structured Output Schema
 const HackerNewsResponse = z.object({
   title: z.string(),
   url: z.string(),
@@ -46,6 +47,8 @@ async function main() {
         log = `agent ${status.status} (${steps}${lastGoal}${liveUrl}) `;
 
         await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        break;
       }
 
       case 'finished':
