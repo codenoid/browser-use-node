@@ -1,10 +1,19 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
+import z from 'zod';
+
 import { APIResource } from '../core/resource';
 import * as TasksAPI from './tasks';
 import { APIPromise } from '../core/api-promise';
 import { RequestOptions } from '../internal/request-options';
 import { path } from '../internal/utils/path';
+import {
+  parseStructuredTaskOutput,
+  stringifyStructuredOutput,
+  TaskViewWithStructuredOutput,
+  type GetTaskStatusParamsWithStructuredOutput,
+  type RunTaskCreateParamsWithStructuredOutput,
+} from '../lib/parse';
 
 export class Tasks extends APIResource {
   /**
@@ -12,6 +21,15 @@ export class Tasks extends APIResource {
    */
   create(body: TaskCreateParams, options?: RequestOptions): APIPromise<TaskView> {
     return this._client.post('/tasks', { body, ...options });
+  }
+
+  createWithStructuredOutput<T extends z.ZodTypeAny>(
+    body: RunTaskCreateParamsWithStructuredOutput<T>,
+    options?: RequestOptions,
+  ): APIPromise<TaskViewWithStructuredOutput<T>> {
+    return this.create(stringifyStructuredOutput(body), options)._thenUnwrap((rsp) =>
+      parseStructuredTaskOutput(rsp as TaskView, body),
+    );
   }
 
   /**
@@ -23,6 +41,20 @@ export class Tasks extends APIResource {
     options?: RequestOptions,
   ): APIPromise<TaskRetrieveResponse> {
     return this._client.get(path`/tasks/${taskID}`, { query, ...options });
+  }
+
+  retrieveWithStructuredOutput<T extends z.ZodTypeAny>(
+    taskID: string,
+    query: GetTaskStatusParamsWithStructuredOutput<T>,
+    options?: RequestOptions,
+  ): APIPromise<TaskViewWithStructuredOutput<T>> {
+    // NOTE: We manually remove structuredOutputJson from the query object because
+    //       it's not a valid Browser Use Cloud parameter.
+    const { structuredOutputJson, ...rest } = query;
+
+    return this.retrieve(taskID, rest, options)._thenUnwrap((rsp) =>
+      parseStructuredTaskOutput(rsp as TaskView, query),
+    );
   }
 
   /**
