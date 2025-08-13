@@ -1,16 +1,16 @@
-import z from 'zod';
+import z, { type ZodType } from 'zod';
 import type { TaskCreateParams, TaskRetrieveParams, TaskView } from '../resources/tasks';
 
 // RUN
 
-export type RunTaskCreateParamsWithStructuredOutput<T extends z.ZodTypeAny> = Omit<
+export type RunTaskCreateParamsWithStructuredOutput<T extends ZodType> = Omit<
   TaskCreateParams,
   'structuredOutputJson'
 > & {
   structuredOutputJson: T;
 };
 
-export function stringifyStructuredOutput<T extends z.ZodTypeAny>(
+export function stringifyStructuredOutput<T extends ZodType>(
   req: RunTaskCreateParamsWithStructuredOutput<T>,
 ): TaskCreateParams {
   return {
@@ -21,7 +21,7 @@ export function stringifyStructuredOutput<T extends z.ZodTypeAny>(
 
 // RETRIEVE
 
-export type GetTaskStatusParamsWithStructuredOutput<T extends z.ZodTypeAny> = Omit<
+export type GetTaskStatusParamsWithStructuredOutput<T extends ZodType> = Omit<
   TaskRetrieveParams,
   'statusOnly'
 > & {
@@ -29,11 +29,11 @@ export type GetTaskStatusParamsWithStructuredOutput<T extends z.ZodTypeAny> = Om
   structuredOutputJson: T;
 };
 
-export type TaskViewWithStructuredOutput<T extends z.ZodTypeAny> = Omit<TaskView, 'doneOutput'> & {
+export type TaskViewWithStructuredOutput<T extends ZodType> = Omit<TaskView, 'doneOutput'> & {
   doneOutput: z.output<T> | null;
 };
 
-export function parseStructuredTaskOutput<T extends z.ZodTypeAny>(
+export function parseStructuredTaskOutput<T extends ZodType>(
   res: TaskView,
   body: GetTaskStatusParamsWithStructuredOutput<T>,
 ): TaskViewWithStructuredOutput<T> {

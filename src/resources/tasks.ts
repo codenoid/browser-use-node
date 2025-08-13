@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import z from 'zod';
+import type { ZodType } from 'zod';
 
 import { APIResource } from '../core/resource';
 import * as TasksAPI from './tasks';
@@ -10,7 +10,7 @@ import { path } from '../internal/utils/path';
 import {
   parseStructuredTaskOutput,
   stringifyStructuredOutput,
-  TaskViewWithStructuredOutput,
+  type TaskViewWithStructuredOutput,
   type GetTaskStatusParamsWithStructuredOutput,
   type RunTaskCreateParamsWithStructuredOutput,
 } from '../lib/parse';
@@ -23,7 +23,7 @@ export class Tasks extends APIResource {
     return this._client.post('/tasks', { body, ...options });
   }
 
-  createWithStructuredOutput<T extends z.ZodTypeAny>(
+  createWithStructuredOutput<T extends ZodType>(
     body: RunTaskCreateParamsWithStructuredOutput<T>,
     options?: RequestOptions,
   ): APIPromise<TaskViewWithStructuredOutput<T>> {
@@ -43,7 +43,7 @@ export class Tasks extends APIResource {
     return this._client.get(path`/tasks/${taskID}`, { query, ...options });
   }
 
-  retrieveWithStructuredOutput<T extends z.ZodTypeAny>(
+  retrieveWithStructuredOutput<T extends ZodType>(
     taskID: string,
     query: GetTaskStatusParamsWithStructuredOutput<T>,
     options?: RequestOptions,

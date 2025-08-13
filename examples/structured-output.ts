@@ -18,16 +18,17 @@ const TaskOutput = z.object({
 });
 
 async function main() {
+  let log = 'starting';
+  const stop = spinner(() => log);
+
+  // Create Task
   const rsp = await browseruse.tasks.createWithStructuredOutput({
     task: 'Extract top 10 Hacker News posts and return the title, url, and score',
     structuredOutputJson: TaskOutput,
   });
 
-  let latestStatusText = 'starting';
-
-  const stop = spinner(() => latestStatusText);
-
   poll: do {
+    // Wait for Task to Finish
     const status = await browseruse.tasks.retrieveWithStructuredOutput(rsp.id, {
       structuredOutputJson: TaskOutput,
     });
@@ -42,7 +43,7 @@ async function main() {
         const lastGoal = lastGoalDescription ? `, last: ${lastGoalDescription}` : '';
         const liveUrl = status.sessionLiveUrl ? `, live: ${status.sessionLiveUrl}` : '';
 
-        latestStatusText = `agent ${status.status} (${steps}${lastGoal}${liveUrl}) `;
+        log = `agent ${status.status} (${steps}${lastGoal}${liveUrl}) `;
 
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
@@ -50,6 +51,7 @@ async function main() {
       case 'finished':
         stop();
 
+        // Print Structured Output
         console.log('TOP POSTS:');
 
         for (const post of status.doneOutput!.posts) {
