@@ -1,5 +1,5 @@
 import type { TaskView, TaskStepView } from '../resources/tasks';
-import { ExhaustiveSwitchCheck } from './types';
+import { type DeepMutable, ExhaustiveSwitchCheck } from './types';
 
 export type ReducerEvent = TaskView | null;
 
@@ -8,8 +8,8 @@ export type BrowserState = Readonly<{
   sessionId: string;
 
   liveUrl: string | null;
-
   steps: ReadonlyArray<TaskStepView>;
+  doneOutput: string | null;
 }> | null;
 
 type BrowserAction = {
@@ -24,12 +24,14 @@ export function reducer(state: BrowserState, action: BrowserAction): [BrowserSta
 
       if (state == null) {
         const liveUrl = action.status.sessionLiveUrl ?? null;
+        const doneOutput = action.status.doneOutput ?? null;
 
         const state: BrowserState = {
           taskId: action.status.id,
           sessionId: action.status.sessionId,
           liveUrl: liveUrl,
           steps: action.status.steps,
+          doneOutput: doneOutput,
         };
 
         return [state, action.status];
@@ -37,9 +39,10 @@ export function reducer(state: BrowserState, action: BrowserAction): [BrowserSta
 
       // UPDATE
 
-      const liveUrl = action.status.sessionLiveUrl ?? null;
-      const steps: TaskStepView[] = [...state.steps];
+      const liveUrl = action.status.sessionLiveUrl ?? state.liveUrl;
+      const doneOutput = action.status.doneOutput ?? state.doneOutput;
 
+      const steps: TaskStepView[] = [...state.steps];
       if (action.status.steps != null) {
         const newSteps = action.status.steps.slice(state.steps.length);
 
@@ -48,15 +51,25 @@ export function reducer(state: BrowserState, action: BrowserAction): [BrowserSta
         }
       }
 
-      const newState: BrowserState = { ...state, liveUrl, steps };
+      const newState: DeepMutable<BrowserState> = {
+        ...state,
+        liveUrl,
+        steps,
+        doneOutput,
+      };
 
       // CHANGES
 
-      if ((state.liveUrl == null && liveUrl != null) || state.steps.length !== steps.length) {
+      if (
+        (state.liveUrl == null && liveUrl != null) ||
+        state.steps.length !== steps.length ||
+        state.doneOutput != doneOutput
+      ) {
         const update: ReducerEvent = {
           ...action.status,
-          steps: steps,
-          sessionLiveUrl: liveUrl,
+          steps: newState.steps,
+          sessionLiveUrl: newState.liveUrl,
+          doneOutput: newState.doneOutput,
         };
 
         return [newState, update];
