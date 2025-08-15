@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import type { ZodType } from 'zod';
+import { ZodType } from 'zod';
 
 import { APIPromise } from '../core/api-promise';
 import { APIResource } from '../core/resource';
@@ -131,7 +131,15 @@ export class Tasks extends APIResource {
     } while (true);
   }
 
-  stream(body: TaskCreateParams, options?: RequestOptions) {
+  stream<T extends ZodType>(
+    body: TaskCreateParamsWithSchema<T>,
+    options?: RequestOptions,
+  ): ReadableStream<Uint8Array<ArrayBufferLike>>;
+  stream(body: TaskCreateParams, options?: RequestOptions): ReadableStream<Uint8Array<ArrayBufferLike>>;
+  stream(
+    body: TaskCreateParams | TaskCreateParamsWithSchema<ZodType>,
+    options?: RequestOptions,
+  ): ReadableStream<Uint8Array<ArrayBufferLike>> {
     const self = this;
 
     const enc = new TextEncoder();
@@ -142,12 +150,34 @@ export class Tasks extends APIResource {
         controller.enqueue(enc.encode(': connected\n\n'));
 
         try {
-          for await (const msg of self.watch(body, { interval: 500 }, options)) {
+          let req: TaskCreateParams;
+
+          if (
+            'structuredOutputJson' in body &&
+            body.structuredOutputJson != null &&
+            typeof body.structuredOutputJson === 'object'
+          ) {
+            req = {
+              ...body,
+              structuredOutputJson: stringifyStructuredOutput(body.structuredOutputJson),
+            };
+          } else {
+            req = body as TaskCreateParams;
+          }
+
+          for await (const msg of self.watch(req, { interval: 500 }, options)) {
             if (options?.signal?.aborted) {
               break;
             }
 
-            const data = JSON.stringify(msg.data);
+            let data: string;
+
+            if (body.structuredOutputJson != null && typeof body.structuredOutputJson === 'object') {
+              const parsed = parseStructuredTaskOutput<ZodType>(msg.data, body.structuredOutputJson);
+              data = JSON.stringify(parsed);
+            } else {
+              data = JSON.stringify(msg.data);
+            }
 
             const payload = `event: ${msg.event}\ndata: ${data}\n\n`;
             controller.enqueue(enc.encode(payload));

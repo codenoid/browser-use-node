@@ -32,36 +32,7 @@ async function main() {
       const lines = chunk.split('\n');
 
       for (const line of lines) {
-        if (line.startsWith('event: ')) {
-          const event = line.slice(7);
-          process.stdout.write(`\n[${event}] `);
-        } else if (line.startsWith('data: ')) {
-          const data = line.slice(6);
-          if (data.trim() && data !== '{}') {
-            try {
-              const parsed = JSON.parse(data) as BrowserUse.TaskView;
-
-              process.stdout.write(`${parsed.status}`);
-              if (parsed.sessionLiveUrl) {
-                process.stdout.write(` | Live URL: ${parsed.sessionLiveUrl}`);
-              }
-
-              if (parsed.steps.length > 0) {
-                const latestStep = parsed.steps[parsed.steps.length - 1];
-                process.stdout.write(` | ${latestStep!.nextGoal}`);
-              }
-
-              if (parsed.status === 'finished') {
-                process.stdout.write(`\n\nOUTPUT: ${parsed.doneOutput}`);
-                // Close the reader and exit the main loop when task is finished
-                reader.releaseLock();
-                return;
-              }
-            } catch (e) {
-              process.stdout.write(`Raw data: ${data}`);
-            }
-          }
-        }
+        console.log(line);
       }
     }
   } catch (error) {
