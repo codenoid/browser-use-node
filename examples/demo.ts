@@ -1,7 +1,6 @@
 #!/usr/bin/env -S npm run tsn -T
 
 import { BrowserUse } from 'browser-use-sdk';
-import { TaskView } from 'browser-use-sdk/resources';
 import { spinner } from './utils';
 
 // gets API Key from environment variable BROWSER_USE_API_KEY
@@ -18,7 +17,7 @@ async function main() {
 
   poll: do {
     // Wait for Task to Finish
-    const status = (await browseruse.tasks.retrieve(rsp.id, { statusOnly: false })) as TaskView;
+    const status = await browseruse.tasks.retrieve(rsp.id);
 
     switch (status.status) {
       case 'started':

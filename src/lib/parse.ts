@@ -1,46 +1,34 @@
 import z, { type ZodType } from 'zod';
-import type { TaskCreateParams, TaskRetrieveParams, TaskView } from '../resources/tasks';
+import type { TaskCreateParams, TaskView } from '../resources/tasks';
 
 // RUN
 
-export type RunTaskCreateParamsWithStructuredOutput<T extends ZodType> = Omit<
-  TaskCreateParams,
-  'structuredOutputJson'
-> & {
+export type TaskCreateParamsWithSchema<T extends ZodType> = Omit<TaskCreateParams, 'structuredOutputJson'> & {
   structuredOutputJson: T;
 };
 
-export function stringifyStructuredOutput<T extends ZodType>(
-  req: RunTaskCreateParamsWithStructuredOutput<T>,
-): TaskCreateParams {
-  return {
-    ...req,
-    structuredOutputJson: JSON.stringify(z.toJSONSchema(req.structuredOutputJson)),
-  };
+export function stringifyStructuredOutput<T extends ZodType>(schema: T): string {
+  return JSON.stringify(z.toJSONSchema(schema));
 }
 
 // RETRIEVE
 
-export type GetTaskStatusParamsWithStructuredOutput<T extends ZodType> = Omit<
-  TaskRetrieveParams,
-  'statusOnly'
-> & {
-  statusOnly?: false;
-  structuredOutputJson: T;
-};
-
-export type TaskViewWithStructuredOutput<T extends ZodType> = Omit<TaskView, 'doneOutput'> & {
+export type TaskViewWithSchema<T extends ZodType> = Omit<TaskView, 'doneOutput'> & {
   doneOutput: z.output<T> | null;
 };
 
 export function parseStructuredTaskOutput<T extends ZodType>(
   res: TaskView,
-  body: GetTaskStatusParamsWithStructuredOutput<T>,
-): TaskViewWithStructuredOutput<T> {
+  schema: T,
+): TaskViewWithSchema<T> {
+  if (res.doneOutput == null) {
+    return { ...res, doneOutput: null };
+  }
+
   try {
     const parsed = JSON.parse(res.doneOutput);
 
-    const response = body.structuredOutputJson.safeParse(parsed);
+    const response = schema.safeParse(parsed);
     if (!response.success) {
       throw new Error(`Invalid structured output: ${response.error.message}`);
     }

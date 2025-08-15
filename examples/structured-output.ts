@@ -23,15 +23,16 @@ async function main() {
   const stop = spinner(() => log);
 
   // Create Task
-  const rsp = await browseruse.tasks.createWithStructuredOutput({
+  const rsp = await browseruse.tasks.create({
     task: 'Extract top 10 Hacker News posts and return the title, url, and score',
     structuredOutputJson: TaskOutput,
   });
 
   poll: do {
     // Wait for Task to Finish
-    const status = await browseruse.tasks.retrieveWithStructuredOutput(rsp.id, {
-      structuredOutputJson: TaskOutput,
+    const status = await browseruse.tasks.retrieve({
+      taskId: rsp.id,
+      schema: TaskOutput,
     });
 
     switch (status.status) {
@@ -52,12 +53,16 @@ async function main() {
       }
 
       case 'finished':
+        if (status.doneOutput == null) {
+          throw new Error('No output');
+        }
+
         stop();
 
         // Print Structured Output
         console.log('TOP POSTS:');
 
-        for (const post of status.doneOutput!.posts) {
+        for (const post of status.doneOutput.posts) {
           console.log(` - ${post.title} (${post.score}) ${post.url}`);
         }
 

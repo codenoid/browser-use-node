@@ -10,9 +10,8 @@ import { path } from '../internal/utils/path';
 import {
   parseStructuredTaskOutput,
   stringifyStructuredOutput,
-  type TaskViewWithStructuredOutput,
-  type GetTaskStatusParamsWithStructuredOutput,
-  type RunTaskCreateParamsWithStructuredOutput,
+  type TaskViewWithSchema,
+  type TaskCreateParamsWithSchema,
 } from '../lib/parse';
 
 export class Tasks extends APIResource {
@@ -62,17 +61,33 @@ export class Tasks extends APIResource {
    * - 404: If referenced agent/browser profiles don't exist
    * - 400: If session is stopped or already has a running task
    */
-  create(body: TaskCreateParams, options?: RequestOptions): APIPromise<TaskView> {
-    return this._client.post('/tasks', { body, ...options });
-  }
-
-  createWithStructuredOutput<T extends ZodType>(
-    body: RunTaskCreateParamsWithStructuredOutput<T>,
+  create<T extends ZodType>(
+    body: TaskCreateParamsWithSchema<T>,
     options?: RequestOptions,
-  ): APIPromise<TaskViewWithStructuredOutput<T>> {
-    return this.create(stringifyStructuredOutput(body), options)._thenUnwrap((rsp) =>
-      parseStructuredTaskOutput(rsp as TaskView, body),
-    );
+  ): APIPromise<TaskViewWithSchema<T>>;
+  create(body: TaskCreateParams, options?: RequestOptions): APIPromise<TaskView>;
+  create(
+    body: TaskCreateParams | TaskCreateParamsWithSchema<ZodType>,
+    options?: RequestOptions,
+  ): APIPromise<unknown> {
+    if (body.structuredOutputJson == null || typeof body.structuredOutputJson === 'string') {
+      return this._client.post('/tasks', { body, ...options });
+    }
+
+    if (typeof body.structuredOutputJson === 'object') {
+      const schema = body.structuredOutputJson;
+
+      const _body: TaskCreateParams = {
+        ...body,
+        structuredOutputJson: stringifyStructuredOutput(schema),
+      };
+
+      return this._client
+        .post('/tasks', { body: _body, ...options })
+        ._thenUnwrap((rsp) => parseStructuredTaskOutput(rsp as TaskView, schema));
+    }
+
+    return this._client.post('/tasks', { body, ...options });
   }
 
   /**
@@ -101,22 +116,21 @@ export class Tasks extends APIResource {
    *
    * - 404: If the user agent task doesn't exist
    */
-  retrieve(taskID: string, options?: RequestOptions): APIPromise<TaskView> {
-    return this._client.get(path`/tasks/${taskID}`, options);
-  }
-
-  retrieveWithStructuredOutput<T extends ZodType>(
-    taskID: string,
-    query: GetTaskStatusParamsWithStructuredOutput<T>,
+  retrieve<T extends ZodType>(
+    req: { taskId: string; schema: T },
     options?: RequestOptions,
-  ): APIPromise<TaskViewWithStructuredOutput<T>> {
-    // NOTE: We manually remove structuredOutputJson from the query object because
-    //       it's not a valid Browser Use Cloud parameter.
-    const { structuredOutputJson, ...rest } = query;
+  ): APIPromise<TaskViewWithSchema<T>>;
+  retrieve(taskID: string, options?: RequestOptions): APIPromise<TaskView>;
+  retrieve(req: string | { taskId: string; schema: ZodType }, options?: RequestOptions): APIPromise<unknown> {
+    if (typeof req === 'string') {
+      return this._client.get(path`/tasks/${req}`, options);
+    }
 
-    return this.retrieve(taskID, rest, options)._thenUnwrap((rsp) =>
-      parseStructuredTaskOutput(rsp as TaskView, query),
-    );
+    const { taskId, schema } = req;
+
+    return this._client
+      .get(path`/tasks/${taskId}`, options)
+      ._thenUnwrap((rsp) => parseStructuredTaskOutput(rsp as TaskView, schema));
   }
 
   /**
