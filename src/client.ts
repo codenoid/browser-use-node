@@ -18,7 +18,6 @@ import * as API from './resources/index';
 import { APIPromise } from './core/api-promise';
 import {
   AgentProfileCreateParams,
-  AgentProfileDeleteResponse,
   AgentProfileListParams,
   AgentProfileListResponse,
   AgentProfileUpdateParams,
@@ -27,7 +26,6 @@ import {
 } from './resources/agent-profiles';
 import {
   BrowserProfileCreateParams,
-  BrowserProfileDeleteResponse,
   BrowserProfileListParams,
   BrowserProfileListResponse,
   BrowserProfileUpdateParams,
@@ -36,16 +34,19 @@ import {
   ProxyCountryCode,
 } from './resources/browser-profiles';
 import {
+  FileView,
   LlmModel,
   TaskCreateParams,
+  TaskGetLogsResponse,
+  TaskGetOutputFileParams,
+  TaskGetOutputFileResponse,
+  TaskGetUserUploadedFileParams,
+  TaskGetUserUploadedFileResponse,
+  TaskItemView,
   TaskListParams,
   TaskListResponse,
-  TaskRetrieveLogsResponse,
-  TaskRetrieveOutputFileParams,
-  TaskRetrieveOutputFileResponse,
-  TaskRetrieveParams,
-  TaskRetrieveResponse,
   TaskStatus,
+  TaskStepView,
   TaskUpdateParams,
   TaskView,
   Tasks,
@@ -59,6 +60,7 @@ import {
   SessionView,
   Sessions,
 } from './resources/sessions/sessions';
+import { Users } from './resources/users/users';
 import { type Fetch } from './internal/builtin-types';
 import { HeadersLike, NullableHeaders, buildHeaders } from './internal/headers';
 import { FinalRequestOptions, RequestOptions } from './internal/request-options';
@@ -756,11 +758,13 @@ export class BrowserUse {
 
   static toFile = Uploads.toFile;
 
+  users: API.Users = new API.Users(this);
   tasks: API.Tasks = new API.Tasks(this);
   sessions: API.Sessions = new API.Sessions(this);
   browserProfiles: API.BrowserProfiles = new API.BrowserProfiles(this);
   agentProfiles: API.AgentProfiles = new API.AgentProfiles(this);
 }
+BrowserUse.Users = Users;
 BrowserUse.Tasks = Tasks;
 BrowserUse.Sessions = Sessions;
 BrowserUse.BrowserProfiles = BrowserProfiles;
@@ -768,20 +772,25 @@ BrowserUse.AgentProfiles = AgentProfiles;
 export declare namespace BrowserUse {
   export type RequestOptions = Opts.RequestOptions;
 
+  export { Users as Users };
+
   export {
     Tasks as Tasks,
+    type FileView as FileView,
     type LlmModel as LlmModel,
+    type TaskItemView as TaskItemView,
     type TaskStatus as TaskStatus,
+    type TaskStepView as TaskStepView,
     type TaskView as TaskView,
-    type TaskRetrieveResponse as TaskRetrieveResponse,
     type TaskListResponse as TaskListResponse,
-    type TaskRetrieveLogsResponse as TaskRetrieveLogsResponse,
-    type TaskRetrieveOutputFileResponse as TaskRetrieveOutputFileResponse,
+    type TaskGetLogsResponse as TaskGetLogsResponse,
+    type TaskGetOutputFileResponse as TaskGetOutputFileResponse,
+    type TaskGetUserUploadedFileResponse as TaskGetUserUploadedFileResponse,
     type TaskCreateParams as TaskCreateParams,
-    type TaskRetrieveParams as TaskRetrieveParams,
     type TaskUpdateParams as TaskUpdateParams,
     type TaskListParams as TaskListParams,
-    type TaskRetrieveOutputFileParams as TaskRetrieveOutputFileParams,
+    type TaskGetOutputFileParams as TaskGetOutputFileParams,
+    type TaskGetUserUploadedFileParams as TaskGetUserUploadedFileParams,
   };
 
   export {
@@ -799,7 +808,6 @@ export declare namespace BrowserUse {
     type BrowserProfileView as BrowserProfileView,
     type ProxyCountryCode as ProxyCountryCode,
     type BrowserProfileListResponse as BrowserProfileListResponse,
-    type BrowserProfileDeleteResponse as BrowserProfileDeleteResponse,
     type BrowserProfileCreateParams as BrowserProfileCreateParams,
     type BrowserProfileUpdateParams as BrowserProfileUpdateParams,
     type BrowserProfileListParams as BrowserProfileListParams,
@@ -809,7 +817,6 @@ export declare namespace BrowserUse {
     AgentProfiles as AgentProfiles,
     type AgentProfileView as AgentProfileView,
     type AgentProfileListResponse as AgentProfileListResponse,
-    type AgentProfileDeleteResponse as AgentProfileDeleteResponse,
     type AgentProfileCreateParams as AgentProfileCreateParams,
     type AgentProfileUpdateParams as AgentProfileUpdateParams,
     type AgentProfileListParams as AgentProfileListParams,

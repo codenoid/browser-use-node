@@ -50,18 +50,6 @@ describe('resource tasks', () => {
   });
 
   // Prism tests are disabled
-  test.skip('retrieve: request options and params are passed correctly', async () => {
-    // ensure the request options are being passed correctly by passing an invalid HTTP method in order to cause an error
-    await expect(
-      client.tasks.retrieve(
-        '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-        { statusOnly: true },
-        { path: '/_stainless_unknown_path' },
-      ),
-    ).rejects.toThrow(BrowserUse.NotFoundError);
-  });
-
-  // Prism tests are disabled
   test.skip('update: only required params', async () => {
     const responsePromise = client.tasks.update('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', { action: 'stop' });
     const rawResponse = await responsePromise.asResponse();
@@ -96,11 +84,13 @@ describe('resource tasks', () => {
     await expect(
       client.tasks.list(
         {
+          filterBy: 'started',
           includeOutputFiles: true,
           includeSteps: true,
           includeUserUploadedFiles: true,
           pageNumber: 1,
           pageSize: 1,
+          sessionId: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
         },
         { path: '/_stainless_unknown_path' },
       ),
@@ -108,8 +98,8 @@ describe('resource tasks', () => {
   });
 
   // Prism tests are disabled
-  test.skip('retrieveLogs', async () => {
-    const responsePromise = client.tasks.retrieveLogs('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+  test.skip('getLogs', async () => {
+    const responsePromise = client.tasks.getLogs('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
     const rawResponse = await responsePromise.asResponse();
     expect(rawResponse).toBeInstanceOf(Response);
     const response = await responsePromise;
@@ -120,8 +110,8 @@ describe('resource tasks', () => {
   });
 
   // Prism tests are disabled
-  test.skip('retrieveOutputFile: only required params', async () => {
-    const responsePromise = client.tasks.retrieveOutputFile('file_name', {
+  test.skip('getOutputFile: only required params', async () => {
+    const responsePromise = client.tasks.getOutputFile('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
       task_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
     });
     const rawResponse = await responsePromise.asResponse();
@@ -134,8 +124,29 @@ describe('resource tasks', () => {
   });
 
   // Prism tests are disabled
-  test.skip('retrieveOutputFile: required and optional params', async () => {
-    const response = await client.tasks.retrieveOutputFile('file_name', {
+  test.skip('getOutputFile: required and optional params', async () => {
+    const response = await client.tasks.getOutputFile('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
+      task_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+    });
+  });
+
+  // Prism tests are disabled
+  test.skip('getUserUploadedFile: only required params', async () => {
+    const responsePromise = client.tasks.getUserUploadedFile('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
+      task_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+    });
+    const rawResponse = await responsePromise.asResponse();
+    expect(rawResponse).toBeInstanceOf(Response);
+    const response = await responsePromise;
+    expect(response).not.toBeInstanceOf(Response);
+    const dataAndResponse = await responsePromise.withResponse();
+    expect(dataAndResponse.data).toBe(response);
+    expect(dataAndResponse.response).toBe(rawResponse);
+  });
+
+  // Prism tests are disabled
+  test.skip('getUserUploadedFile: required and optional params', async () => {
+    const response = await client.tasks.getUserUploadedFile('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
       task_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
     });
   });

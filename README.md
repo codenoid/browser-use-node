@@ -26,9 +26,9 @@ const client = new BrowserUse({
   apiKey: process.env['BROWSER_USE_API_KEY'], // This is the default and can be omitted
 });
 
-const tasks = await client.tasks.list();
+const me = await client.users.me.retrieve();
 
-console.log(tasks.items);
+console.log(me.additionalCreditsBalanceUsd);
 ```
 
 ### Request & Response types
@@ -43,7 +43,7 @@ const client = new BrowserUse({
   apiKey: process.env['BROWSER_USE_API_KEY'], // This is the default and can be omitted
 });
 
-const tasks: BrowserUse.TaskListResponse = await client.tasks.list();
+const me: BrowserUse.Users.MeRetrieveResponse = await client.users.me.retrieve();
 ```
 
 Documentation for each method, request param, and response field are available in docstrings and will appear on hover in most modern editors.
@@ -56,7 +56,7 @@ a subclass of `APIError` will be thrown:
 
 <!-- prettier-ignore -->
 ```ts
-const tasks = await client.tasks.list().catch(async (err) => {
+const me = await client.users.me.retrieve().catch(async (err) => {
   if (err instanceof BrowserUse.APIError) {
     console.log(err.status); // 400
     console.log(err.name); // BadRequestError
@@ -96,7 +96,7 @@ const client = new BrowserUse({
 });
 
 // Or, configure per-request:
-await client.tasks.list({
+await client.users.me.retrieve({
   maxRetries: 5,
 });
 ```
@@ -113,7 +113,7 @@ const client = new BrowserUse({
 });
 
 // Override per-request:
-await client.tasks.list({
+await client.users.me.retrieve({
   timeout: 5 * 1000,
 });
 ```
@@ -136,13 +136,13 @@ Unlike `.asResponse()` this method consumes the body, returning once it is parse
 ```ts
 const client = new BrowserUse();
 
-const response = await client.tasks.list().asResponse();
+const response = await client.users.me.retrieve().asResponse();
 console.log(response.headers.get('X-My-Header'));
 console.log(response.statusText); // access the underlying Response object
 
-const { data: tasks, response: raw } = await client.tasks.list().withResponse();
+const { data: me, response: raw } = await client.users.me.retrieve().withResponse();
 console.log(raw.headers.get('X-My-Header'));
-console.log(tasks.items);
+console.log(me.additionalCreditsBalanceUsd);
 ```
 
 ### Logging
@@ -222,7 +222,7 @@ parameter. This library doesn't validate at runtime that the request matches the
 send will be sent as-is.
 
 ```ts
-client.tasks.list({
+client.users.me.retrieve({
   // ...
   // @ts-expect-error baz is not yet public
   baz: 'undocumented option',
