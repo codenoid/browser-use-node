@@ -54,7 +54,7 @@ export class Tasks extends APIResource {
    *
    * Returns:
    *
-   * - The created task with its initial details
+   * - The created task ID together with the task's session ID
    *
    * Raises:
    *
@@ -65,17 +65,13 @@ export class Tasks extends APIResource {
   create<T extends ZodType>(
     body: TaskCreateParamsWithSchema<T>,
     options?: RequestOptions,
-  ): APIPromise<TaskViewWithSchema<T>>;
-  create(body: TaskCreateParams, options?: RequestOptions): APIPromise<TaskView>;
+  ): APIPromise<TaskCreateResponse>;
+  create(body: TaskCreateParams, options?: RequestOptions): APIPromise<TaskCreateResponse>;
   create(
     body: TaskCreateParams | TaskCreateParamsWithSchema<ZodType>,
     options?: RequestOptions,
-  ): APIPromise<unknown> {
-    if (body.structuredOutputJson == null || typeof body.structuredOutputJson === 'string') {
-      return this._client.post('/tasks', { body, ...options });
-    }
-
-    if (typeof body.structuredOutputJson === 'object') {
+  ): APIPromise<TaskCreateResponse> {
+    if (body.structuredOutputJson != null && typeof body.structuredOutputJson === 'object') {
       const schema = body.structuredOutputJson;
 
       const _body: TaskCreateParams = {
@@ -83,93 +79,10 @@ export class Tasks extends APIResource {
         structuredOutputJson: stringifyStructuredOutput(schema),
       };
 
-      return this._client
-        .post('/tasks', { body: _body, ...options })
-        ._thenUnwrap((rsp) => parseStructuredTaskOutput(rsp as TaskView, schema));
+      return this._client.post('/tasks', { body: _body, ...options });
     }
 
     return this._client.post('/tasks', { body, ...options });
-  }
-
-  private async *watch(
-    data: TaskCreateParams,
-    config: { interval: number },
-    options?: RequestOptions,
-  ): AsyncGenerator<{ event: 'status'; data: TaskView }> {
-    const tick: { current: number } = { current: 0 };
-    const state: { current: BrowserState } = { current: null };
-
-    poll: do {
-      if (options?.signal?.aborted) {
-        break poll;
-      }
-
-      tick.current++;
-
-      let status: TaskView;
-
-      // NOTE: We take action on each tick.
-      if (state.current == null) {
-        status = await this.create(data, options);
-      } else {
-        status = await this.retrieve(state.current.taskId);
-      }
-
-      const [newState, event] = reducer(state.current, { kind: 'status', status });
-
-      if (event != null) {
-        yield { event: 'status', data: event };
-
-        if (event.status === 'finished') {
-          break;
-        }
-      }
-
-      state.current = newState;
-
-      await new Promise((resolve) => setTimeout(resolve, config.interval));
-    } while (true);
-  }
-
-  stream<T extends ZodType>(
-    body: TaskCreateParamsWithSchema<T>,
-    options?: RequestOptions,
-  ): AsyncGenerator<{ event: 'status'; data: TaskViewWithSchema<T> }>;
-  stream(
-    body: TaskCreateParams,
-    options?: RequestOptions,
-  ): AsyncGenerator<{ event: 'status'; data: TaskView }>;
-  async *stream(
-    body: TaskCreateParams | TaskCreateParamsWithSchema<ZodType>,
-    options?: RequestOptions,
-  ): AsyncGenerator<unknown> {
-    let req: TaskCreateParams;
-
-    if (
-      'structuredOutputJson' in body &&
-      body.structuredOutputJson != null &&
-      typeof body.structuredOutputJson === 'object'
-    ) {
-      req = {
-        ...body,
-        structuredOutputJson: stringifyStructuredOutput(body.structuredOutputJson),
-      };
-    } else {
-      req = body as TaskCreateParams;
-    }
-
-    for await (const msg of this.watch(req, { interval: 500 }, options)) {
-      if (options?.signal?.aborted) {
-        break;
-      }
-
-      if (body.structuredOutputJson != null && typeof body.structuredOutputJson === 'object') {
-        const parsed = parseStructuredTaskOutput<ZodType>(msg.data, body.structuredOutputJson);
-        yield { event: 'status', data: parsed };
-      } else {
-        yield { event: 'status', data: msg.data };
-      }
-    }
   }
 
   /**
@@ -213,6 +126,69 @@ export class Tasks extends APIResource {
     return this._client
       .get(path`/tasks/${taskId}`, options)
       ._thenUnwrap((rsp) => parseStructuredTaskOutput(rsp as TaskView, schema));
+  }
+
+  private async *watch(
+    taskId: string,
+    config: { interval: number },
+    options?: RequestOptions,
+  ): AsyncGenerator<{ event: 'status'; data: TaskView }> {
+    const tick: { current: number } = { current: 0 };
+    const state: { current: BrowserState } = { current: null };
+
+    poll: do {
+      if (options?.signal?.aborted) {
+        break poll;
+      }
+
+      tick.current++;
+
+      const status = await this.retrieve(taskId);
+
+      const [newState, event] = reducer(state.current, { kind: 'status', status });
+
+      if (event != null) {
+        yield { event: 'status', data: event };
+
+        if (event.status === 'finished') {
+          break;
+        }
+      }
+
+      state.current = newState;
+
+      await new Promise((resolve) => setTimeout(resolve, config.interval));
+    } while (true);
+  }
+
+  stream<T extends ZodType>(
+    body: {
+      taskId: string;
+      schema: T;
+    },
+    options?: RequestOptions,
+  ): AsyncGenerator<{ event: 'status'; data: TaskViewWithSchema<T> }>;
+  stream(taskId: string, options?: RequestOptions): AsyncGenerator<{ event: 'status'; data: TaskView }>;
+  async *stream(
+    body: string | { taskId: string; schema: ZodType },
+    options?: RequestOptions,
+  ): AsyncGenerator<unknown> {
+    let req: TaskCreateParams;
+
+    const taskId = typeof body === 'object' ? body.taskId : body;
+
+    for await (const msg of this.watch(taskId, { interval: 500 }, options)) {
+      if (options?.signal?.aborted) {
+        break;
+      }
+
+      if (typeof body === 'object') {
+        const parsed = parseStructuredTaskOutput<ZodType>(msg.data, body.schema);
+        yield { event: 'status', data: parsed };
+      } else {
+        yield { event: 'status', data: msg.data };
+      }
+    }
   }
 
   /**
@@ -562,6 +538,18 @@ export interface TaskView {
 }
 
 /**
+ * Response model for creating a task
+ *
+ * Attributes: task_id: An unique identifier for the created task session_id: The
+ * ID of the session this task belongs to
+ */
+export interface TaskCreateResponse {
+  id: string;
+
+  sessionId: string;
+}
+
+/**
  * Response model for paginated task list requests
  *
  * Attributes: items: List of task views for the current page
@@ -711,6 +699,7 @@ export declare namespace Tasks {
     type TaskStatus as TaskStatus,
     type TaskStepView as TaskStepView,
     type TaskView as TaskView,
+    type TaskCreateResponse as TaskCreateResponse,
     type TaskListResponse as TaskListResponse,
     type TaskGetLogsResponse as TaskGetLogsResponse,
     type TaskGetOutputFileResponse as TaskGetOutputFileResponse,

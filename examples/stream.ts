@@ -9,9 +9,11 @@ async function main() {
   console.log('Creating task and starting stream...');
 
   // Create a task and get the stream
-  const gen = browseruse.tasks.stream({
+  const task = await browseruse.tasks.create({
     task: 'What is the weather in San Francisco?',
   });
+
+  const gen = browseruse.tasks.stream(task.id);
 
   for await (const msg of gen) {
     console.log(msg);
