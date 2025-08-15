@@ -131,38 +131,45 @@ export class Tasks extends APIResource {
     } while (true);
   }
 
-  stream(body: TaskCreateParams, options?: RequestOptions) {
-    const self = this;
+  stream<T extends ZodType>(
+    body: TaskCreateParamsWithSchema<T>,
+    options?: RequestOptions,
+  ): AsyncGenerator<{ event: 'status'; data: TaskViewWithSchema<T> }>;
+  stream(
+    body: TaskCreateParams,
+    options?: RequestOptions,
+  ): AsyncGenerator<{ event: 'status'; data: TaskView }>;
+  async *stream(
+    body: TaskCreateParams | TaskCreateParamsWithSchema<ZodType>,
+    options?: RequestOptions,
+  ): AsyncGenerator<unknown> {
+    let req: TaskCreateParams;
 
-    const enc = new TextEncoder();
+    if (
+      'structuredOutputJson' in body &&
+      body.structuredOutputJson != null &&
+      typeof body.structuredOutputJson === 'object'
+    ) {
+      req = {
+        ...body,
+        structuredOutputJson: stringifyStructuredOutput(body.structuredOutputJson),
+      };
+    } else {
+      req = body as TaskCreateParams;
+    }
 
-    const stream = new ReadableStream<Uint8Array>({
-      async start(controller) {
-        // open the SSE stream quickly
-        controller.enqueue(enc.encode(': connected\n\n'));
+    for await (const msg of this.watch(req, { interval: 500 }, options)) {
+      if (options?.signal?.aborted) {
+        break;
+      }
 
-        try {
-          for await (const msg of self.watch(body, { interval: 500 }, options)) {
-            if (options?.signal?.aborted) {
-              break;
-            }
-
-            const data = JSON.stringify(msg.data);
-
-            const payload = `event: ${msg.event}\ndata: ${data}\n\n`;
-            controller.enqueue(enc.encode(payload));
-          }
-
-          controller.enqueue(enc.encode('event: end\ndata: {}\n\n'));
-        } catch (e) {
-          controller.enqueue(enc.encode(`event: error\ndata: ${JSON.stringify({ message: String(e) })}\n\n`));
-        } finally {
-          controller.close();
-        }
-      },
-    });
-
-    return stream;
+      if (body.structuredOutputJson != null && typeof body.structuredOutputJson === 'object') {
+        const parsed = parseStructuredTaskOutput<ZodType>(msg.data, body.structuredOutputJson);
+        yield { event: 'status', data: parsed };
+      } else {
+        yield { event: 'status', data: msg.data };
+      }
+    }
   }
 
   /**
