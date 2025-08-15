@@ -2,17 +2,18 @@
 
 import type { ZodType } from 'zod';
 
-import { APIResource } from '../core/resource';
-import * as TasksAPI from './tasks';
 import { APIPromise } from '../core/api-promise';
+import { APIResource } from '../core/resource';
 import { RequestOptions } from '../internal/request-options';
 import { path } from '../internal/utils/path';
 import {
   parseStructuredTaskOutput,
   stringifyStructuredOutput,
-  type TaskViewWithSchema,
   type TaskCreateParamsWithSchema,
+  type TaskViewWithSchema,
 } from '../lib/parse';
+import { BrowserState, reducer } from '../lib/stream';
+import * as TasksAPI from './tasks';
 
 export class Tasks extends APIResource {
   /**
@@ -88,6 +89,80 @@ export class Tasks extends APIResource {
     }
 
     return this._client.post('/tasks', { body, ...options });
+  }
+
+  private async *watch(
+    data: TaskCreateParams,
+    config: { interval: number },
+    options?: RequestOptions,
+  ): AsyncGenerator<{ event: 'status'; data: TaskView }> {
+    const tick: { current: number } = { current: 0 };
+    const state: { current: BrowserState } = { current: null };
+
+    poll: do {
+      if (options?.signal?.aborted) {
+        break poll;
+      }
+
+      tick.current++;
+
+      let status: TaskView;
+
+      // NOTE: We take action on each tick.
+      if (state.current == null) {
+        status = await this.create(data, options);
+      } else {
+        status = await this.retrieve(state.current.taskId);
+      }
+
+      const [newState, event] = reducer(state.current, { kind: 'status', status });
+
+      if (event != null) {
+        yield { event: 'status', data: event };
+
+        if (event.status === 'finished') {
+          break;
+        }
+      }
+
+      state.current = newState;
+
+      await new Promise((resolve) => setTimeout(resolve, config.interval));
+    } while (true);
+  }
+
+  stream(body: TaskCreateParams, options?: RequestOptions) {
+    const self = this;
+
+    const enc = new TextEncoder();
+
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        // open the SSE stream quickly
+        controller.enqueue(enc.encode(': connected\n\n'));
+
+        try {
+          for await (const msg of self.watch(body, { interval: 500 }, options)) {
+            if (options?.signal?.aborted) {
+              break;
+            }
+
+            const data = JSON.stringify(msg.data);
+
+            const payload = `event: ${msg.event}\ndata: ${data}\n\n`;
+            controller.enqueue(enc.encode(payload));
+          }
+
+          controller.enqueue(enc.encode('event: end\ndata: {}\n\n'));
+        } catch (e) {
+          controller.enqueue(enc.encode(`event: error\ndata: ${JSON.stringify({ message: String(e) })}\n\n`));
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return stream;
   }
 
   /**
