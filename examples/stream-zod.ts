@@ -20,9 +20,14 @@ async function main() {
   console.log('Creating task and starting stream...\n');
 
   // Create a task and get the stream
-  const stream = browseruse.tasks.stream({
+  const task = await browseruse.tasks.create({
     task: 'Extract top 10 Hacker News posts and return the title, url, and score',
     structuredOutputJson: TaskOutput,
+  });
+
+  const stream = browseruse.tasks.stream({
+    taskId: task.id,
+    schema: TaskOutput,
   });
 
   for await (const msg of stream) {

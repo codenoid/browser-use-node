@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 (2025-08-15)
+
+Full Changelog: [v0.2.2...v0.3.0](https://github.com/browser-use/browser-use-node/compare/v0.2.2...v0.3.0)
+
+### Features
+
+* Fix Stainless GitHub Action ([16f3e7f](https://github.com/browser-use/browser-use-node/commit/16f3e7f6a43c5f29c81543624ca56cfd72b8e0cf))
+
 ## 0.2.2 (2025-08-15)
 
 Full Changelog: [v0.2.1...v0.2.2](https://github.com/browser-use/browser-use-node/compare/v0.2.1...v0.2.2)
