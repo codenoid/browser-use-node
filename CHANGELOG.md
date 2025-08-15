@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.2 (2025-08-15)
+
+Full Changelog: [v0.2.1...v0.2.2](https://github.com/browser-use/browser-use-node/compare/v0.2.1...v0.2.2)
+
+### Bug Fixes
+
+* stream completion ([2f6ce1f](https://github.com/browser-use/browser-use-node/commit/2f6ce1f1a312ba3f94872e262db2c17df5f6bf56))
+
 ## 0.2.1 (2025-08-15)
 
 Full Changelog: [v0.2.0...v0.2.1](https://github.com/browser-use/browser-use-node/compare/v0.2.0...v0.2.1)
