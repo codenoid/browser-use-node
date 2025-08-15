@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 (2025-08-15)
+
+Full Changelog: [v0.1.1...v0.2.0](https://github.com/browser-use/browser-use-node/compare/v0.1.1...v0.2.0)
+
+### Features
+
+* **api:** api update ([3df1a94](https://github.com/browser-use/browser-use-node/commit/3df1a94275d67ce41756227e6f0b749b2c3ed009))
+* **api:** manual updates ([7183cef](https://github.com/browser-use/browser-use-node/commit/7183cef2c497b83985d368cb3a559fc0e11e4082))
+
 ## 0.1.1 (2025-08-14)
 
 Full Changelog: [v0.1.0...v0.1.1](https://github.com/browser-use/browser-use-node/compare/v0.1.0...v0.1.1)
