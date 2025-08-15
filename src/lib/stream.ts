@@ -1,5 +1,5 @@
 import type { TaskView, TaskStepView } from '../resources/tasks';
-import { ExhaustiveSwitchCheck } from './types';
+import { type DeepMutable, ExhaustiveSwitchCheck } from './types';
 
 export type ReducerEvent = TaskView | null;
 
@@ -39,10 +39,10 @@ export function reducer(state: BrowserState, action: BrowserAction): [BrowserSta
 
       // UPDATE
 
-      const liveUrl = action.status.sessionLiveUrl ?? null;
-      const doneOutput = action.status.doneOutput ?? null;
-      const steps: TaskStepView[] = [...state.steps];
+      const liveUrl = action.status.sessionLiveUrl ?? state.liveUrl;
+      const doneOutput = action.status.doneOutput ?? state.doneOutput;
 
+      const steps: TaskStepView[] = [...state.steps];
       if (action.status.steps != null) {
         const newSteps = action.status.steps.slice(state.steps.length);
 
@@ -51,7 +51,7 @@ export function reducer(state: BrowserState, action: BrowserAction): [BrowserSta
         }
       }
 
-      const newState: BrowserState = {
+      const newState: DeepMutable<BrowserState> = {
         ...state,
         liveUrl,
         steps,
@@ -67,9 +67,9 @@ export function reducer(state: BrowserState, action: BrowserAction): [BrowserSta
       ) {
         const update: ReducerEvent = {
           ...action.status,
-          steps: steps,
-          sessionLiveUrl: liveUrl,
-          doneOutput: doneOutput,
+          steps: newState.steps,
+          sessionLiveUrl: newState.liveUrl,
+          doneOutput: newState.doneOutput,
         };
 
         return [newState, update];
