@@ -1,7 +1,6 @@
 #!/usr/bin/env -S npm run tsn -T
 
 import { BrowserUse } from 'browser-use-sdk';
-import { TaskViewWithSchema } from 'browser-use-sdk/lib/parse';
 import z from 'zod';
 
 const HackerNewsResponse = z.object({
@@ -26,65 +25,31 @@ async function main() {
     structuredOutputJson: TaskOutput,
   });
 
-  // Get a reader from the stream
-  const reader = stream.getReader();
-  const decoder = new TextDecoder();
+  for await (const msg of stream) {
+    // Regular
+    process.stdout.write(`${msg.data.status}`);
+    if (msg.data.sessionLiveUrl) {
+      process.stdout.write(` | Live URL: ${msg.data.sessionLiveUrl}`);
+    }
 
-  try {
-    // Read the stream chunk by chunk
-    loop: while (true) {
-      const { done, value } = await reader.read();
+    if (msg.data.steps.length > 0) {
+      const latestStep = msg.data.steps[msg.data.steps.length - 1];
+      process.stdout.write(` | ${latestStep!.nextGoal}`);
+    }
 
-      if (done) {
-        console.log('\nStream completed');
-        break loop;
-      }
+    process.stdout.write('\n');
 
-      // Decode the chunk and parse the Server-Sent Events format
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
+    // Output
+    if (msg.data.status === 'finished') {
+      process.stdout.write(`\n\nOUTPUT:`);
 
-      for (const line of lines) {
-        if (line.startsWith('event: ')) {
-          const event = line.slice(7);
-          process.stdout.write(`\n[${event}] `);
-        } else if (line.startsWith('data: ')) {
-          const data = line.slice(6);
-          if (data.trim() && data !== '{}') {
-            try {
-              const parsed = JSON.parse(data) as TaskViewWithSchema<typeof TaskOutput>;
-
-              process.stdout.write(`${parsed.status}`);
-              if (parsed.sessionLiveUrl) {
-                process.stdout.write(` | Live URL: ${parsed.sessionLiveUrl}`);
-              }
-
-              if (parsed.steps.length > 0) {
-                const latestStep = parsed.steps[parsed.steps.length - 1];
-                process.stdout.write(` | ${latestStep!.nextGoal}`);
-              }
-
-              if (parsed.status === 'finished') {
-                process.stdout.write(`\n\nOUTPUT:`);
-
-                for (const post of parsed.doneOutput!.posts) {
-                  process.stdout.write(`\n - ${post.title} (${post.score}) ${post.url}`);
-                }
-
-                break loop;
-              }
-            } catch (e) {
-              process.stdout.write(`Raw data: ${data}`);
-            }
-          }
-        }
+      for (const post of msg.data.doneOutput!.posts) {
+        process.stdout.write(`\n - ${post.title} (${post.score}) ${post.url}`);
       }
     }
-  } catch (error) {
-    console.error('Error reading stream:', error);
-  } finally {
-    reader.releaseLock();
   }
+
+  console.log('\nStream completed');
 }
 
 main().catch(console.error);
