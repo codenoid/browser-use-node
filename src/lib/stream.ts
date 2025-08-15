@@ -69,6 +69,7 @@ export function reducer(state: BrowserState, action: BrowserAction): [BrowserSta
           ...action.status,
           steps: steps,
           sessionLiveUrl: liveUrl,
+          doneOutput: doneOutput,
         };
 
         return [newState, update];
