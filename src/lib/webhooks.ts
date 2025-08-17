@@ -79,24 +79,18 @@ export async function verifyWebhookEventSignature(
       return { ok: false };
     }
 
-    const e = event.data;
-
-    // Create message in the same format as Python: timestamp.payload
-    // Note: Using JSON.stringify with separators and sort_keys equivalent
-    const dump = stringify(e.payload);
-    const message = `${evt.timestamp}.${dump}`;
-
-    // Create HMAC with SHA-256 using the secret
-    const hmac = createHmac('sha256', cfg.secret);
-    hmac.update(message);
-    const signature = hmac.digest('hex');
+    const signature = createWebhookSignature({
+      payload: event.data.payload,
+      timestamp: evt.timestamp,
+      secret: cfg.secret,
+    });
 
     // Compare signatures using timing-safe comparison
     if (evt.signature !== signature) {
       return { ok: false };
     }
 
-    return { ok: true, event: e };
+    return { ok: true, event: event.data };
   } catch (err) {
     console.error(err);
     return { ok: false };
@@ -106,7 +100,7 @@ export async function verifyWebhookEventSignature(
 /**
  * Creates a webhook signature for the given payload, timestamp, and secret.
  */
-export async function createWebhookSignature({
+export function createWebhookSignature({
   payload,
   timestamp,
   secret,
@@ -114,7 +108,7 @@ export async function createWebhookSignature({
   payload: unknown;
   timestamp: string;
   secret: string;
-}): Promise<string> {
+}): string {
   const dump = stringify(payload);
   const message = `${timestamp}.${dump}`;
 

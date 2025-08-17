@@ -73,7 +73,7 @@ describe('webhooks', () => {
         },
       };
 
-      const signature = await createWebhookSignature({
+      const signature = createWebhookSignature({
         payload: MOCK.payload,
         secret: 'secret',
         timestamp,

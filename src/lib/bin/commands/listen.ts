@@ -121,7 +121,7 @@ export const listen = new Command('listen')
       const promises = queue.current.map(async (update) => {
         const body = JSON.stringify(update);
 
-        const signature = await createWebhookSignature({
+        const signature = createWebhookSignature({
           payload: update.payload,
           timestamp: update.timestamp,
           secret,
