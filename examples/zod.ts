@@ -46,7 +46,7 @@ async function main() {
         const steps = `${stepsCount} steps`;
         const lastGoalDescription = stepsCount > 0 ? status.steps![stepsCount - 1]!.nextGoal : undefined;
         const lastGoal = lastGoalDescription ? `, last: ${lastGoalDescription}` : '';
-        const liveUrl = status.sessionLiveUrl ? `, live: ${status.sessionLiveUrl}` : '';
+        const liveUrl = status.session.liveUrl ? `, live: ${status.session.liveUrl}` : '';
 
         log = `agent ${status.status} (${steps}${lastGoal}${liveUrl}) `;
 
