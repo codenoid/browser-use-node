@@ -37,8 +37,8 @@ async function main() {
   for await (const msg of stream) {
     // Regular
     process.stdout.write(`${msg.data.status}`);
-    if (msg.data.sessionLiveUrl) {
-      process.stdout.write(` | Live URL: ${msg.data.sessionLiveUrl}`);
+    if (msg.data.session.liveUrl) {
+      process.stdout.write(` | Live URL: ${msg.data.session.liveUrl}`);
     }
 
     if (msg.data.steps.length > 0) {

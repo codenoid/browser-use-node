@@ -55,7 +55,6 @@ import {
 import {
   SessionListParams,
   SessionListResponse,
-  SessionRetrieveParams,
   SessionStatus,
   SessionUpdateParams,
   SessionView,
@@ -765,11 +764,13 @@ export class BrowserUse {
   browserProfiles: API.BrowserProfiles = new API.BrowserProfiles(this);
   agentProfiles: API.AgentProfiles = new API.AgentProfiles(this);
 }
+
 BrowserUse.Users = Users;
 BrowserUse.Tasks = Tasks;
 BrowserUse.Sessions = Sessions;
 BrowserUse.BrowserProfiles = BrowserProfiles;
 BrowserUse.AgentProfiles = AgentProfiles;
+
 export declare namespace BrowserUse {
   export type RequestOptions = Opts.RequestOptions;
 
@@ -800,7 +801,6 @@ export declare namespace BrowserUse {
     type SessionStatus as SessionStatus,
     type SessionView as SessionView,
     type SessionListResponse as SessionListResponse,
-    type SessionRetrieveParams as SessionRetrieveParams,
     type SessionUpdateParams as SessionUpdateParams,
     type SessionListParams as SessionListParams,
   };

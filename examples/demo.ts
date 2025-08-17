@@ -26,7 +26,7 @@ async function main() {
       case 'started':
       case 'paused':
       case 'stopped':
-        log = `agent ${status.status} - live: ${status.sessionLiveUrl}`;
+        log = `agent ${status.status} - live: ${status.session.liveUrl}`;
 
         await new Promise((resolve) => setTimeout(resolve, 2000));
         break;

@@ -23,7 +23,7 @@ export function reducer(state: BrowserState, action: BrowserAction): [BrowserSta
       // INIT
 
       if (state == null) {
-        const liveUrl = action.status.sessionLiveUrl ?? null;
+        const liveUrl = action.status.session.liveUrl ?? null;
         const doneOutput = action.status.doneOutput ?? null;
 
         const state: BrowserState = {
@@ -39,7 +39,7 @@ export function reducer(state: BrowserState, action: BrowserAction): [BrowserSta
 
       // UPDATE
 
-      const liveUrl = action.status.sessionLiveUrl ?? state.liveUrl;
+      const liveUrl = action.status.session.liveUrl ?? state.liveUrl;
       const doneOutput = action.status.doneOutput ?? state.doneOutput;
 
       const steps: TaskStepView[] = [...state.steps];
@@ -68,7 +68,10 @@ export function reducer(state: BrowserState, action: BrowserAction): [BrowserSta
         const update: ReducerEvent = {
           ...action.status,
           steps: newState.steps,
-          sessionLiveUrl: newState.liveUrl,
+          session: {
+            ...action.status.session,
+            liveUrl: newState.liveUrl,
+          },
           doneOutput: newState.doneOutput,
         };
 

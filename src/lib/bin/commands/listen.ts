@@ -51,12 +51,7 @@ export const listen = new Command('listen')
 
       const tasks: BrowserUse.Tasks.TaskItemView[] = await client.tasks
         .list(
-          {
-            includeOutputFiles: false,
-            includeSteps: false,
-            includeUserUploadedFiles: false,
-            pageSize: 10,
-          },
+          { pageSize: 10 },
           {
             signal: tickRef.abort.signal,
           },

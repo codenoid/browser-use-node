@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.0 (2025-08-17)
+
+Full Changelog: [v0.3.0...v0.4.0](https://github.com/browser-use/browser-use-node/compare/v0.3.0...v0.4.0)
+
+### Features
+
+* Update param and response views ([68615f4](https://github.com/browser-use/browser-use-node/commit/68615f4851b05203a78520c34409ad4c8f043cc4))
+
+
+### Chores
+
+* **deps:** update dependency @types/node to v20.17.58 ([42c532e](https://github.com/browser-use/browser-use-node/commit/42c532ede1ba630159e410ebf3c8cc8a73721242))
+* **internal:** formatting change ([e09c835](https://github.com/browser-use/browser-use-node/commit/e09c8357715abca8d1e095316a7f43d171a3a0f9))
+
 ## 0.3.0 (2025-08-15)
 
 Full Changelog: [v0.2.2...v0.3.0](https://github.com/browser-use/browser-use-node/compare/v0.2.2...v0.3.0)
