@@ -23,6 +23,7 @@
     "format": "./scripts/format",
     "prepare": "if ./scripts/utils/check-is-in-git-install.sh; then ./scripts/build && ./scripts/utils/git-swap.sh; fi",
     "tsn": "ts-node -r tsconfig-paths/register",
+    "cli": "ts-node -r tsconfig-paths/register --cwd $PWD ./src/lib/bin/cli.ts",
     "lint": "./scripts/lint",
     "fix": "./scripts/format"
   },

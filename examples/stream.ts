@@ -2,6 +2,10 @@
 
 import { BrowserUse } from 'browser-use-sdk';
 
+import { env } from './utils';
+
+env();
+
 async function main() {
   // gets API Key from environment variable BROWSER_USE_API_KEY
   const browseruse = new BrowserUse();

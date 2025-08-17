@@ -2,7 +2,10 @@
 
 import { BrowserUse } from 'browser-use-sdk';
 import { z } from 'zod';
-import { spinner } from './utils';
+
+import { env, spinner } from './utils';
+
+env();
 
 // gets API Key from environment variable BROWSER_USE_API_KEY
 const browseruse = new BrowserUse();

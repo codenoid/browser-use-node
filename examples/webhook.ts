@@ -7,12 +7,16 @@ import {
 } from 'browser-use-sdk/lib/webhooks';
 import { createServer, IncomingMessage, type Server, type ServerResponse } from 'http';
 
+import { env } from './utils';
+
+env();
+
 const PORT = 3000;
-const WAIT_FOR_TASK_FINISH_TIMEOUT = 30_000;
+const WAIT_FOR_TASK_FINISH_TIMEOUT = 60_000;
 
 // Environment ---------------------------------------------------------------
 
-const WEBHOOK_SECRET = process.env['WEBHOOK_SECRET'];
+const SECRET_KEY = process.env['SECRET_KEY'];
 
 // API -----------------------------------------------------------------------
 
@@ -24,8 +28,8 @@ const browseruse = new BrowserUse();
 const whServerRef: { current: Server | null } = { current: null };
 
 async function main() {
-  if (!WEBHOOK_SECRET) {
-    console.error('WEBHOOK_SECRET is not set');
+  if (!SECRET_KEY) {
+    console.error('SECRET_KEY is not set');
     process.exit(1);
   }
 
@@ -58,7 +62,7 @@ async function main() {
               timestamp,
             },
             {
-              secret: WEBHOOK_SECRET,
+              secret: SECRET_KEY,
             },
           );
 
@@ -67,7 +71,7 @@ async function main() {
             console.log(body);
             console.log(signature, 'signature');
             console.log(timestamp, 'timestamp');
-            console.log(WEBHOOK_SECRET, 'WEBHOOK_SECRET');
+            console.log(SECRET_KEY, 'SECRET_KEY');
 
             res.writeHead(401, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Invalid signature' }));

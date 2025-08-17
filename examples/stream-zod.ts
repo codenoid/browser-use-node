@@ -3,6 +3,10 @@
 import { BrowserUse } from 'browser-use-sdk';
 import z from 'zod';
 
+import { env } from './utils';
+
+env();
+
 const HackerNewsResponse = z.object({
   title: z.string(),
   url: z.string(),

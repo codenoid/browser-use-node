@@ -2,7 +2,7 @@ import { Command } from 'commander';
 
 import { BrowserUse } from '../../../';
 import { createWebhookSignature, Webhook } from '../../webhooks';
-import { createBrowserUseClient } from '../auth';
+import { createBrowserUseClient, getBrowserUseWebhookSecret } from '../auth';
 
 // NOTE: We perform task list refresh to get all running tasks and then
 const tickRef: {
@@ -13,22 +13,14 @@ const tickRef: {
 export const listen = new Command('listen')
   .description(`Open a local webhook to receive Cloud API updates from the CLI on your local machine.`)
   .option('-d, --dev <endpoint>', 'The endpoint to forward updates to.')
-  .option('--secret <secret>', 'The secret to use for webhook signature verification.')
   .action(async (options) => {
-    //
-
-    const { secret } = options;
-
-    if (secret == null) {
-      console.error('Missing --secret option');
-      process.exit(1);
-    }
-
-    //
     // Auth
+
     const client = createBrowserUseClient();
+    const secret = getBrowserUseWebhookSecret();
 
     // Proxy
+
     const { dev: localTargetEndpoint } = options;
 
     if (typeof localTargetEndpoint !== 'string') {
