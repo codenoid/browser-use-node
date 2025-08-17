@@ -1,3 +1,5 @@
+import dotenv from '@dotenvx/dotenvx';
+
 const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
 /**
@@ -25,4 +27,8 @@ export function spinner(renderText: () => string): () => void {
       process.stdout.cursorTo(0);
     }
   };
+}
+
+export function env() {
+  dotenv.config({ path: [__dirname + '/.env', '.env'] });
 }

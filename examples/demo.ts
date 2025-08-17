@@ -1,7 +1,10 @@
 #!/usr/bin/env -S npm run tsn -T
 
 import { BrowserUse } from 'browser-use-sdk';
-import { spinner } from './utils';
+
+import { env, spinner } from './utils';
+
+env();
 
 // gets API Key from environment variable BROWSER_USE_API_KEY
 const browseruse = new BrowserUse();
