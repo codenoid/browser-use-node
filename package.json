@@ -19,6 +19,7 @@
   "scripts": {
     "test": "./scripts/test",
     "build": "./scripts/build",
+    "postbuild": "chmod +x ./dist/lib/bin/cli.js",
     "prepublishOnly": "echo 'to publish, run yarn build && (cd dist; yarn publish)' && exit 1",
     "format": "./scripts/format",
     "prepare": "if ./scripts/utils/check-is-in-git-install.sh; then ./scripts/build && ./scripts/utils/git-swap.sh; fi",

@@ -34,7 +34,7 @@ async function main() {
   }
 
   console.log('Starting Browser Use Webhook Example');
-  console.log('Run `browser-use listen --dev http://localhost:3000/webhook`!');
+  console.log('Run `browser-use listen http://localhost:3000/webhook`!');
 
   // Start a Webhook Server
 

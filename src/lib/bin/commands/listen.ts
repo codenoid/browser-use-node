@@ -12,8 +12,8 @@ const tickRef: {
 
 export const listen = new Command('listen')
   .description(`Open a local webhook to receive Cloud API updates from the CLI on your local machine.`)
-  .option('-d, --dev <endpoint>', 'The endpoint to forward updates to.')
-  .action(async (options) => {
+  .argument('<endpoint>', 'The endpoint to forward updates to.')
+  .action(async (endpoint) => {
     // Auth
 
     const client = createBrowserUseClient();
@@ -21,7 +21,7 @@ export const listen = new Command('listen')
 
     // Proxy
 
-    const { dev: localTargetEndpoint } = options;
+    const localTargetEndpoint = endpoint;
 
     if (typeof localTargetEndpoint !== 'string') {
       // NOTE: This should never happen because the command is validated by commander.
@@ -158,7 +158,7 @@ export const listen = new Command('listen')
       queue.current = delivery.filter((d) => d.delivery === 'rejected').map((d) => d.update);
     }, 1_000);
 
-    console.log(`Listening in dev mode at: ${localTargetEndpoint}`);
+    console.log(`Forwarding updates to: ${localTargetEndpoint}!`);
   });
 
 process.on('SIGINT', () => {
