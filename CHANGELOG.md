@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 (2025-08-18)
+
+Full Changelog: [v0.4.0...v0.5.0](https://github.com/browser-use/browser-use-node/compare/v0.4.0...v0.5.0)
+
+### Features
+
+* Add start_url ([10e4187](https://github.com/browser-use/browser-use-node/commit/10e4187e952398bb1bd7f1607a0450cca0e25b0f))
+* Align Task Filtering by Status with `status` Field ([1ea0943](https://github.com/browser-use/browser-use-node/commit/1ea0943b3cbca9fb9f40e36c33094756c979ac54))
+
 ## 0.4.0 (2025-08-17)
 
 Full Changelog: [v0.3.0...v0.4.0](https://github.com/browser-use/browser-use-node/compare/v0.3.0...v0.4.0)

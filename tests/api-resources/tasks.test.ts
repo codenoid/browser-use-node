@@ -24,10 +24,13 @@ describe('resource tasks', () => {
   test.skip('create: required and optional params', async () => {
     const response = await client.tasks.create({
       task: 'x',
-      agentSettings: { llm: 'gpt-4o', profileId: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e' },
+      agentSettings: {
+        llm: 'gpt-4o',
+        profileId: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+        startUrl: 'startUrl',
+      },
       browserSettings: {
         profileId: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
-        saveBrowserData: true,
         sessionId: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
       },
       includedFileNames: ['string'],
@@ -84,6 +87,8 @@ describe('resource tasks', () => {
     await expect(
       client.tasks.list(
         {
+          after: '2019-12-27T18:11:19.117Z',
+          before: '2019-12-27T18:11:19.117Z',
           filterBy: 'started',
           pageNumber: 1,
           pageSize: 1,

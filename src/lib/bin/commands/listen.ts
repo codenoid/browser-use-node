@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 
-import { BrowserUse } from '../../../';
+import { APIUserAbortError, BrowserUse } from '../../../';
 import { createWebhookSignature, Webhook } from '../../webhooks';
 import { createBrowserUseClient, getBrowserUseWebhookSecret } from '../auth';
 
@@ -34,6 +34,7 @@ export const listen = new Command('listen')
 
     //
 
+    const startTimeDate = new Date();
     const queue: { current: Webhook[] } = { current: [] };
     const runs: Map<string, BrowserUse.TaskStatus> = new Map();
 
@@ -51,13 +52,26 @@ export const listen = new Command('listen')
 
       const tasks: BrowserUse.Tasks.TaskItemView[] = await client.tasks
         .list(
-          { pageSize: 10 },
+          {
+            pageSize: 10,
+            // NOTE: There's a bug in the API where the datetime needs to be provided in naive format.cur
+            after: startTimeDate.toISOString().replace('Z', ''),
+          },
           {
             signal: tickRef.abort.signal,
           },
         )
         .then((res) => res.items)
-        .catch((_) => []);
+        .catch((err) => {
+          if (err instanceof APIUserAbortError) {
+            return [];
+          }
+
+          console.log(`[polling] ${new Date().toISOString()} failed`);
+          console.error(err);
+
+          return [];
+        });
 
       for (const task of tasks) {
         const currentTaskStatus = runs.get(task.id);
