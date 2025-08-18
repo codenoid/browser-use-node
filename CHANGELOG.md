@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.1 (2025-08-18)
+
+Full Changelog: [v0.5.0...v0.5.1](https://github.com/browser-use/browser-use-node/compare/v0.5.0...v0.5.1)
+
+### Bug Fixes
+
+* Fix Browser Use CLI ([132bc96](https://github.com/browser-use/browser-use-node/commit/132bc96cdb1917c6d95b84382463b08d0e75096e))
+
 ## 0.5.0 (2025-08-18)
 
 Full Changelog: [v0.4.0...v0.5.0](https://github.com/browser-use/browser-use-node/compare/v0.4.0...v0.5.0)
