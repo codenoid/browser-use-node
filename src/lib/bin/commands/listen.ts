@@ -115,11 +115,20 @@ export const listen = new Command('listen')
         }
       }
 
-      if (queue.current.length === 0) {
-        return;
-      }
+      // Send Events
 
-      const promises = queue.current.map(async (update) => {
+      const events: (Webhook & { internal?: true })[] = [
+        // NOTE: We push the ping request on every tick to ensure the webhook is alive.
+        {
+          type: 'test',
+          timestamp: new Date().toISOString(),
+          payload: { test: 'ok' },
+          internal: true,
+        },
+        ...queue.current,
+      ];
+
+      const promises = events.map(async (update) => {
         const body = JSON.stringify(update);
 
         const signature = createWebhookSignature({
@@ -155,7 +164,9 @@ export const listen = new Command('listen')
       const delivery = await Promise.all(promises);
 
       // NOTE: We preserve the rejected updates so we can retry them.
-      queue.current = delivery.filter((d) => d.delivery === 'rejected').map((d) => d.update);
+      queue.current = delivery
+        .filter((d) => d.delivery === 'rejected' && d.update.internal !== true)
+        .map((d) => d.update);
     }, 1_000);
 
     console.log(`Forwarding updates to: ${localTargetEndpoint}!`);

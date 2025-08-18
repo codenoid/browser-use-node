@@ -12,7 +12,7 @@ import { env } from './utils';
 env();
 
 const PORT = 3000;
-const WAIT_FOR_TASK_FINISH_TIMEOUT = 60_000;
+const WAIT_FOR_TASK_FINISH_TIMEOUT = 3 * 60_000;
 
 // Environment ---------------------------------------------------------------
 
@@ -57,7 +57,7 @@ async function main() {
 
           const event = await verifyWebhookEventSignature(
             {
-              evt: body,
+              body,
               signature,
               timestamp,
             },

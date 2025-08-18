@@ -79,9 +79,18 @@ describe('webhooks', () => {
         timestamp,
       });
 
-      const valid = await verifyWebhookEventSignature(
+      const validJSON = await verifyWebhookEventSignature(
         {
-          evt: JSON.stringify(MOCK),
+          body: MOCK,
+          signature: signature,
+          timestamp,
+        },
+        { secret: 'secret' },
+      );
+
+      const validString = await verifyWebhookEventSignature(
+        {
+          body: JSON.stringify(MOCK),
           signature: signature,
           timestamp,
         },
@@ -90,14 +99,15 @@ describe('webhooks', () => {
 
       const invalid = await verifyWebhookEventSignature(
         {
-          evt: JSON.stringify(MOCK),
+          body: JSON.stringify(MOCK),
           signature: 'invalid',
           timestamp,
         },
         { secret: 'secret' },
       );
 
-      expect(valid.ok).toBe(true);
+      expect(validJSON.ok).toBe(true);
+      expect(validString.ok).toBe(true);
       expect(invalid.ok).toBe(false);
     });
   });

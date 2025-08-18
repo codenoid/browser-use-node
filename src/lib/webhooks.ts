@@ -18,7 +18,7 @@ export type WebhookTestPayload = z.infer<typeof zWebhookTestPayload>;
 
 export const zWebhookTest = z.object({
   type: z.literal('test'),
-  timestamp: z.iso.datetime({ offset: true }),
+  timestamp: zWebhookTimestamp,
   payload: zWebhookTestPayload,
 });
 
@@ -66,14 +66,15 @@ export type Webhook = z.infer<typeof zWebhookSchema>;
  */
 export async function verifyWebhookEventSignature(
   evt: {
-    evt: string;
+    body: string | object;
     signature: string;
     timestamp: string;
   },
   cfg: { secret: string },
 ): Promise<{ ok: true; event: Webhook } | { ok: false }> {
   try {
-    const event = await zWebhookSchema.safeParseAsync(JSON.parse(evt.evt));
+    const json = typeof evt.body === 'string' ? JSON.parse(evt.body) : evt.body;
+    const event = await zWebhookSchema.safeParseAsync(json);
 
     if (event.success === false) {
       return { ok: false };
