@@ -501,9 +501,9 @@ export interface TaskView {
    * View model for representing a session that a task belongs to
    *
    * Attributes: id: Unique identifier for the session status: Current status of the
-   * session live_url: URL where the browser can be viewed live in real-time.
-   * started_at: Timestamp when the session was created and started. finished_at:
-   * Timestamp when the session was stopped (None if still active).
+   * session (active/stopped) live_url: URL where the browser can be viewed live in
+   * real-time. started_at: Timestamp when the session was created and started.
+   * finished_at: Timestamp when the session was stopped (None if still active).
    */
   session: TaskView.Session;
 
@@ -542,9 +542,9 @@ export namespace TaskView {
    * View model for representing a session that a task belongs to
    *
    * Attributes: id: Unique identifier for the session status: Current status of the
-   * session live_url: URL where the browser can be viewed live in real-time.
-   * started_at: Timestamp when the session was created and started. finished_at:
-   * Timestamp when the session was stopped (None if still active).
+   * session (active/stopped) live_url: URL where the browser can be viewed live in
+   * real-time. started_at: Timestamp when the session was created and started.
+   * finished_at: Timestamp when the session was stopped (None if still active).
    */
   export interface Session {
     id: string;
@@ -633,10 +633,11 @@ export interface TaskCreateParams {
   task: string;
 
   /**
-   * Configuration settings for the AI agent
+   * Configuration settings for the agent
    *
-   * Attributes: llm: The LLM model to use for the agent profile_id: Unique
-   * identifier of the agent profile to use for the task
+   * Attributes: llm: The LLM model to use for the agent start_url: Optional URL to
+   * start the agent on (will not be changed as a step) profile_id: Unique identifier
+   * of the agent profile to use for the task
    */
   agentSettings?: TaskCreateParams.AgentSettings;
 
@@ -644,8 +645,8 @@ export interface TaskCreateParams {
    * Configuration settings for the browser session
    *
    * Attributes: session_id: Unique identifier of existing session to continue
-   * profile_id: Unique identifier of browser profile to use save_browser_data:
-   * Whether to save browser state/data for the user to download later
+   * profile_id: Unique identifier of browser profile to use (use if you want to
+   * start a new session)
    */
   browserSettings?: TaskCreateParams.BrowserSettings;
 
@@ -660,28 +661,29 @@ export interface TaskCreateParams {
 
 export namespace TaskCreateParams {
   /**
-   * Configuration settings for the AI agent
+   * Configuration settings for the agent
    *
-   * Attributes: llm: The LLM model to use for the agent profile_id: Unique
-   * identifier of the agent profile to use for the task
+   * Attributes: llm: The LLM model to use for the agent start_url: Optional URL to
+   * start the agent on (will not be changed as a step) profile_id: Unique identifier
+   * of the agent profile to use for the task
    */
   export interface AgentSettings {
     llm?: TasksAPI.LlmModel;
 
     profileId?: string | null;
+
+    startUrl?: string | null;
   }
 
   /**
    * Configuration settings for the browser session
    *
    * Attributes: session_id: Unique identifier of existing session to continue
-   * profile_id: Unique identifier of browser profile to use save_browser_data:
-   * Whether to save browser state/data for the user to download later
+   * profile_id: Unique identifier of browser profile to use (use if you want to
+   * start a new session)
    */
   export interface BrowserSettings {
     profileId?: string | null;
-
-    saveBrowserData?: boolean;
 
     sessionId?: string | null;
   }
