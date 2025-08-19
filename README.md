@@ -26,32 +26,105 @@ const client = new BrowserUse({
   apiKey: process.env['BROWSER_USE_API_KEY'], // This is the default and can be omitted
 });
 
-const task = await client.tasks.create({
+// #1 - Run a task and get its result
+
+const task = await client.tasks.run({
   task: 'Search for the top 10 Hacker News posts and return the title and url.',
 });
 
-console.log(task.id);
+console.log(task.doneOutput);
+
+// #2 - Run a task with a structured result
+
+import z from 'zod';
+
+const TaskOutput = z.object({
+  posts: z.array(
+    z.object({
+      title: z.string(),
+      url: z.string(),
+    }),
+  ),
+});
+
+const posts = await client.tasks.run({
+  task: 'Search for the top 10 Hacker News posts and return the title and url.',
+});
+
+for (const post of posts.doneOutput.posts) {
+  console.log(`${post.title} - ${post.url}`);
+}
+
+// #3 - Stream Task Progress
+
+const hn = await browseruse.tasks.create({
+  task: 'Search for the top 10 Hacker News posts and return the title and url.',
+  schema: TaskOutput,
+});
+
+const stream = browseruse.tasks.stream({
+  taskId: hn.id,
+  schema: TaskOutput,
+});
+
+for await (const msg of stream) {
+  switch (msg.status) {
+    case 'started':
+    case 'paused':
+    case 'stopped':
+      console.log(`running: ${msg}`);
+      break;
+
+    case 'finished':
+      console.log(`done:`);
+
+      for (const post of msg.doneOutput.posts) {
+        console.log(`${post.title} - ${post.url}`);
+      }
+      break;
+  }
+}
 ```
 
-### Request & Response types
+## Webhook Verification
 
-This library includes TypeScript definitions for all request params and response fields. You may import and use them like so:
+> We encourage you to use the SDK functions that verify and parse webhook events.
 
-<!-- prettier-ignore -->
 ```ts
-import BrowserUse from 'browser-use-sdk';
+import {
+  verifyWebhookEventSignature,
+  type WebhookAgentTaskStatusUpdatePayload,
+} from 'browser-use-sdk/lib/webhooks';
 
-const client = new BrowserUse({
-  apiKey: process.env['BROWSER_USE_API_KEY'], // This is the default and can be omitted
-});
+export async function POST(req: Request) {
+  const signature = req.headers['x-browser-use-signature'] as string;
+  const timestamp = req.headers['x-browser-use-timestamp'] as string;
 
-const params: BrowserUse.TaskCreateParams = {
-  task: 'Search for the top 10 Hacker News posts and return the title and url.',
-};
-const task: BrowserUse.TaskCreateResponse = await client.tasks.create(params);
+  const event = await verifyWebhookEventSignature(
+    {
+      body,
+      signature,
+      timestamp,
+    },
+    {
+      secret: SECRET_KEY,
+    },
+  );
+
+  if (!event.ok) {
+    return;
+  }
+
+  switch (event.event.type) {
+    case 'agent.task.status_update':
+      break;
+    case 'test':
+      break;
+    default:
+      break;
+  }
+}
 ```
-
-Documentation for each method, request param, and response field are available in docstrings and will appear on hover in most modern editors.
 
 ## Handling errors
 
