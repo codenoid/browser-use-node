@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0 (2025-08-19)
+
+Full Changelog: [v0.6.0...v0.7.0](https://github.com/browser-use/browser-use-node/compare/v0.6.0...v0.7.0)
+
+### Features
+
+* **api:** manual updates ([d339b83](https://github.com/browser-use/browser-use-node/commit/d339b83355a358c7a55fa501576403cb30e0aa31))
+* **api:** manual updates ([5d09807](https://github.com/browser-use/browser-use-node/commit/5d09807eb2cb8fa30555775d0a5cb21b2c7f3c7f))
+
 ## 0.6.0 (2025-08-19)
 
 Full Changelog: [v0.5.1...v0.6.0](https://github.com/browser-use/browser-use-node/compare/v0.5.1...v0.6.0)

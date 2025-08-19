@@ -26,9 +26,11 @@ const client = new BrowserUse({
   apiKey: process.env['BROWSER_USE_API_KEY'], // This is the default and can be omitted
 });
 
-const me = await client.users.me.retrieve();
+const task = await client.tasks.create({
+  task: 'Search for the top 10 Hacker News posts and return the title and url.',
+});
 
-console.log(me.additionalCreditsBalanceUsd);
+console.log(task.id);
 ```
 
 ### Request & Response types
@@ -43,7 +45,10 @@ const client = new BrowserUse({
   apiKey: process.env['BROWSER_USE_API_KEY'], // This is the default and can be omitted
 });
 
-const me: BrowserUse.Users.MeRetrieveResponse = await client.users.me.retrieve();
+const params: BrowserUse.TaskCreateParams = {
+  task: 'Search for the top 10 Hacker News posts and return the title and url.',
+};
+const task: BrowserUse.TaskCreateResponse = await client.tasks.create(params);
 ```
 
 Documentation for each method, request param, and response field are available in docstrings and will appear on hover in most modern editors.
@@ -56,15 +61,17 @@ a subclass of `APIError` will be thrown:
 
 <!-- prettier-ignore -->
 ```ts
-const me = await client.users.me.retrieve().catch(async (err) => {
-  if (err instanceof BrowserUse.APIError) {
-    console.log(err.status); // 400
-    console.log(err.name); // BadRequestError
-    console.log(err.headers); // {server: 'nginx', ...}
-  } else {
-    throw err;
-  }
-});
+const task = await client.tasks
+  .create({ task: 'Search for the top 10 Hacker News posts and return the title and url.' })
+  .catch(async (err) => {
+    if (err instanceof BrowserUse.APIError) {
+      console.log(err.status); // 400
+      console.log(err.name); // BadRequestError
+      console.log(err.headers); // {server: 'nginx', ...}
+    } else {
+      throw err;
+    }
+  });
 ```
 
 Error codes are as follows:
@@ -96,7 +103,7 @@ const client = new BrowserUse({
 });
 
 // Or, configure per-request:
-await client.users.me.retrieve({
+await client.tasks.create({ task: 'Search for the top 10 Hacker News posts and return the title and url.' }, {
   maxRetries: 5,
 });
 ```
@@ -113,7 +120,7 @@ const client = new BrowserUse({
 });
 
 // Override per-request:
-await client.users.me.retrieve({
+await client.tasks.create({ task: 'Search for the top 10 Hacker News posts and return the title and url.' }, {
   timeout: 5 * 1000,
 });
 ```
@@ -136,13 +143,17 @@ Unlike `.asResponse()` this method consumes the body, returning once it is parse
 ```ts
 const client = new BrowserUse();
 
-const response = await client.users.me.retrieve().asResponse();
+const response = await client.tasks
+  .create({ task: 'Search for the top 10 Hacker News posts and return the title and url.' })
+  .asResponse();
 console.log(response.headers.get('X-My-Header'));
 console.log(response.statusText); // access the underlying Response object
 
-const { data: me, response: raw } = await client.users.me.retrieve().withResponse();
+const { data: task, response: raw } = await client.tasks
+  .create({ task: 'Search for the top 10 Hacker News posts and return the title and url.' })
+  .withResponse();
 console.log(raw.headers.get('X-My-Header'));
-console.log(me.additionalCreditsBalanceUsd);
+console.log(task.id);
 ```
 
 ### Logging
@@ -222,7 +233,7 @@ parameter. This library doesn't validate at runtime that the request matches the
 send will be sent as-is.
 
 ```ts
-client.users.me.retrieve({
+client.tasks.create({
   // ...
   // @ts-expect-error baz is not yet public
   baz: 'undocumented option',
