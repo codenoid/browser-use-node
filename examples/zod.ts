@@ -28,7 +28,7 @@ async function main() {
   // Create Task
   const rsp = await browseruse.tasks.create({
     task: 'Extract top 10 Hacker News posts and return the title, url, and score',
-    structuredOutputJson: TaskOutput,
+    schema: TaskOutput,
   });
 
   poll: do {

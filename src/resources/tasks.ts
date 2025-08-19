@@ -70,8 +70,8 @@ export class Tasks extends APIResource {
     body: TaskCreateParams | TaskCreateParamsWithSchema<ZodType>,
     options?: RequestOptions,
   ): APIPromise<TaskCreateResponse> {
-    if (body.structuredOutputJson != null && typeof body.structuredOutputJson === 'object') {
-      const schema = body.structuredOutputJson;
+    if ('schema' in body && body.schema != null && typeof body.schema === 'object') {
+      const schema = body.schema;
 
       const _body: TaskCreateParams = {
         ...body,
@@ -188,6 +188,47 @@ export class Tasks extends APIResource {
         yield { event: 'status', data: msg.data };
       }
     }
+  }
+
+  /**
+   * Create and run an agent task.
+   *
+   * @returns The output of the task.
+   */
+  run<T extends ZodType>(
+    body: TaskCreateParamsWithSchema<T>,
+    options?: RequestOptions,
+  ): APIPromise<TaskViewWithSchema<T>>;
+  run(body: TaskCreateParams, options?: RequestOptions): APIPromise<TaskView>;
+  run(
+    body: TaskCreateParams | TaskCreateParamsWithSchema<ZodType>,
+    options?: RequestOptions,
+  ): APIPromise<unknown> {
+    if ('schema' in body && body.schema != null && typeof body.schema === 'object') {
+      return this.create(body, options)._thenUnwrap(async (data) => {
+        const taskId = data.id;
+
+        for await (const msg of this.stream<ZodType>({ taskId, schema: body.schema }, options)) {
+          if (msg.data.status === 'finished') {
+            return msg.data;
+          }
+        }
+
+        throw new Error('Task did not finish');
+      });
+    }
+
+    return this.create(body, options)._thenUnwrap(async (data) => {
+      const taskId = data.id;
+
+      for await (const msg of this.stream(taskId, options)) {
+        if (msg.data.status === 'finished') {
+          return msg.data;
+        }
+      }
+
+      throw new Error('Task did not finish');
+    });
   }
 
   /**
