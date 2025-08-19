@@ -21,7 +21,7 @@ const TaskOutput = z.object({
 });
 
 async function main() {
-  console.log(`Creating Task...`);
+  console.log(`Running Task...`);
 
   // Create Task
   const rsp = await browseruse.tasks.run({
