@@ -4,7 +4,7 @@ import type { TaskCreateParams, TaskView } from '../resources/tasks';
 // RUN
 
 export type TaskCreateParamsWithSchema<T extends ZodType> = Omit<TaskCreateParams, 'structuredOutputJson'> & {
-  structuredOutputJson: T;
+  schema: T;
 };
 
 export function stringifyStructuredOutput<T extends ZodType>(schema: T): string {
