@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.0 (2025-08-19)
+
+Full Changelog: [v0.7.0...v1.0.0](https://github.com/browser-use/browser-use-node/compare/v0.7.0...v1.0.0)
+
+### ⚠ BREAKING CHANGES
+
+* This PR creates a v1 release of the Browser Use Node SDK
+
+### Performance Improvements
+
+* Create 1.0.0 Release ([a2007b8](https://github.com/browser-use/browser-use-node/commit/a2007b806fac33b89092b8bebbc4bbe972de6c76))
+
 ## 0.7.0 (2025-08-19)
 
 Full Changelog: [v0.6.0...v0.7.0](https://github.com/browser-use/browser-use-node/compare/v0.6.0...v0.7.0)
