@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.0 (2025-08-19)
+
+Full Changelog: [v0.5.1...v0.6.0](https://github.com/browser-use/browser-use-node/compare/v0.5.1...v0.6.0)
+
+### Features
+
+* Event Verify Type Signature, Aggressively Push Status Checks in Webhook ([6239b3a](https://github.com/browser-use/browser-use-node/commit/6239b3a632df204ab01fcc89c40890d80d0c1bf6))
+* Improve Docs ([12429c9](https://github.com/browser-use/browser-use-node/commit/12429c9289030fc8c4c1bbb7fe5aa249c08ec8ee))
+
+
+### Bug Fixes
+
+* Trigger SDK build ([e5b9215](https://github.com/browser-use/browser-use-node/commit/e5b9215d158a2e50a736ba185dd641dece9d96bb))
+* Trigger SDK build ([0ce7b48](https://github.com/browser-use/browser-use-node/commit/0ce7b48d3920460c40091d0449413c7c59d4ef19))
+
 ## 0.5.1 (2025-08-18)
 
 Full Changelog: [v0.5.0...v0.5.1](https://github.com/browser-use/browser-use-node/compare/v0.5.0...v0.5.1)
