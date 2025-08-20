@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1 (2025-08-20)
+
+Full Changelog: [v1.1.0...v1.1.1](https://github.com/browser-use/browser-use-node/compare/v1.1.0...v1.1.1)
+
 ## 1.1.0 (2025-08-20)
 
 Full Changelog: [v1.0.0...v1.1.0](https://github.com/browser-use/browser-use-node/compare/v1.0.0...v1.1.0)
