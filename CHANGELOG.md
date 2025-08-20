@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 (2025-08-20)
+
+Full Changelog: [v1.0.0...v1.1.0](https://github.com/browser-use/browser-use-node/compare/v1.0.0...v1.1.0)
+
+### Features
+
+* LLM key strings over LLM model enum ([415d734](https://github.com/browser-use/browser-use-node/commit/415d734d7f1c8cec85d3aee9f0e1050f31a7b1ac))
+* **mcp:** add code execution tool ([96e6aca](https://github.com/browser-use/browser-use-node/commit/96e6acad04252d075543b60a8de59f95648ca8a7))
+
 ## 1.0.0 (2025-08-19)
 
 Full Changelog: [v0.7.0...v1.0.0](https://github.com/browser-use/browser-use-node/compare/v0.7.0...v1.0.0)
