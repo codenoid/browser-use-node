@@ -1,14 +1,46 @@
 #!/usr/bin/env -S npm run tsn -T
 
 import { BrowserUse } from 'browser-use-sdk';
-import { z } from 'zod';
 
 import { env, spinner } from './utils';
+import z from 'zod';
 
 env();
 
 // gets API Key from environment variable BROWSER_USE_API_KEY
 const browseruse = new BrowserUse();
+
+async function basic() {
+  let log = 'starting';
+  const stop = spinner(() => log);
+
+  // Create Task
+  const rsp = await browseruse.tasks.create({
+    task: "What's the weather line in SF and what's the temperature?",
+    agentSettings: { llm: 'gemini-2.5-flash' },
+  });
+
+  poll: do {
+    // Wait for Task to Finish
+    const status = await browseruse.tasks.retrieve(rsp.id);
+
+    switch (status.status) {
+      case 'started':
+      case 'paused':
+      case 'stopped':
+        log = `agent ${status.status} - live: ${status.session.liveUrl}`;
+
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        break;
+
+      case 'finished':
+        stop();
+
+        console.log(status.doneOutput);
+        break poll;
+    }
+  } while (true);
+}
 
 // Define Structured Output Schema
 const HackerNewsResponse = z.object({
@@ -21,7 +53,7 @@ const TaskOutput = z.object({
   posts: z.array(HackerNewsResponse),
 });
 
-async function main() {
+async function structured() {
   let log = 'starting';
   const stop = spinner(() => log);
 
@@ -29,6 +61,7 @@ async function main() {
   const rsp = await browseruse.tasks.create({
     task: 'Extract top 10 Hacker News posts and return the title, url, and score',
     schema: TaskOutput,
+    agentSettings: { llm: 'gemini-2.5-flash' },
   });
 
   poll: do {
@@ -42,13 +75,7 @@ async function main() {
       case 'started':
       case 'paused':
       case 'stopped': {
-        const stepsCount = status.steps ? status.steps.length : 0;
-        const steps = `${stepsCount} steps`;
-        const lastGoalDescription = stepsCount > 0 ? status.steps![stepsCount - 1]!.nextGoal : undefined;
-        const lastGoal = lastGoalDescription ? `, last: ${lastGoalDescription}` : '';
-        const liveUrl = status.session.liveUrl ? `, live: ${status.session.liveUrl}` : '';
-
-        log = `agent ${status.status} (${steps}${lastGoal}${liveUrl}) `;
+        log = `agent ${status.status} ${status.session.liveUrl} | ${status.steps.length} steps`;
 
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -56,16 +83,16 @@ async function main() {
       }
 
       case 'finished':
-        if (status.doneOutput == null) {
+        if (status.parsedOutput == null) {
           throw new Error('No output');
         }
 
         stop();
 
         // Print Structured Output
-        console.log('TOP POSTS:');
+        console.log('Top Hacker News Posts:');
 
-        for (const post of status.doneOutput.posts) {
+        for (const post of status.parsedOutput.posts) {
           console.log(` - ${post.title} (${post.score}) ${post.url}`);
         }
 
@@ -74,4 +101,6 @@ async function main() {
   } while (true);
 }
 
-main().catch(console.error);
+basic()
+  .then(() => structured())
+  .catch(console.error);

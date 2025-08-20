@@ -13,7 +13,6 @@ import {
   type TaskViewWithSchema,
 } from '../lib/parse';
 import { BrowserState, reducer } from '../lib/stream';
-import * as TasksAPI from './tasks';
 
 export class Tasks extends APIResource {
   /**
@@ -172,8 +171,6 @@ export class Tasks extends APIResource {
     body: string | { taskId: string; schema: ZodType },
     options?: RequestOptions,
   ): AsyncGenerator<unknown> {
-    let req: TaskCreateParams;
-
     const taskId = typeof body === 'object' ? body.taskId : body;
 
     for await (const msg of this.watch(taskId, { interval: 500 }, options)) {

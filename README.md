@@ -1,41 +1,28 @@
-# Browser Use TypeScript API Library
-
-[![NPM version](<https://img.shields.io/npm/v/browser-use-sdk.svg?label=npm%20(stable)>)](https://npmjs.org/package/browser-use-sdk) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/browser-use-sdk)
-
-This library provides convenient access to the Browser Use REST API from server-side TypeScript or JavaScript.
-
-The REST API documentation can be found on [docs.browser-use.com](https://docs.browser-use.com/cloud/). The full API of this library can be found in [api.md](api.md).
-
-It is generated with [Stainless](https://www.stainless.com/).
-
-## Installation
+<img src="./assets/cloud-banner-js.png" alt="Browser Use JS" width="full"/>
 
 ```sh
-npm install browser-use-sdk
+pnpm add browser-use-sdk
 ```
 
-## Usage
+## QuickStart
 
-The full API of this library can be found in [api.md](api.md).
-
-<!-- prettier-ignore -->
-```js
+```ts
 import BrowserUse from 'browser-use-sdk';
 
-const client = new BrowserUse({
-  apiKey: process.env['BROWSER_USE_API_KEY'], // This is the default and can be omitted
-});
+const client = new BrowserUse();
 
-// #1 - Run a task and get its result
-
-const task = await client.tasks.run({
+const result = await client.tasks.run({
   task: 'Search for the top 10 Hacker News posts and return the title and url.',
 });
 
-console.log(task.doneOutput);
+console.log(result.doneOutput);
+```
 
-// #2 - Run a task with a structured result
+> The full API of this library can be found in [api.md](api.md).
 
+### Structured Output with Zod
+
+```ts
 import z from 'zod';
 
 const TaskOutput = z.object({
@@ -47,23 +34,25 @@ const TaskOutput = z.object({
   ),
 });
 
-const posts = await client.tasks.run({
+const result = await client.tasks.run({
   task: 'Search for the top 10 Hacker News posts and return the title and url.',
 });
 
-for (const post of posts.doneOutput.posts) {
+for (const post of result.parsedOutput.posts) {
   console.log(`${post.title} - ${post.url}`);
 }
+```
 
-// #3 - Stream Task Progress
+### Streaming Agent Updates
 
-const hn = await browseruse.tasks.create({
+```ts
+const task = await browseruse.tasks.create({
   task: 'Search for the top 10 Hacker News posts and return the title and url.',
   schema: TaskOutput,
 });
 
 const stream = browseruse.tasks.stream({
-  taskId: hn.id,
+  taskId: task.id,
   schema: TaskOutput,
 });
 
@@ -78,7 +67,7 @@ for await (const msg of stream) {
     case 'finished':
       console.log(`done:`);
 
-      for (const post of msg.doneOutput.posts) {
+      for (const post of msg.parsedOutput.posts) {
         console.log(`${post.title} - ${post.url}`);
       }
       break;
