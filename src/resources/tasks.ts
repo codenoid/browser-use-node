@@ -12,7 +12,7 @@ import {
   type TaskCreateParamsWithSchema,
   type TaskViewWithSchema,
 } from '../lib/parse';
-import { BrowserState, reducer } from '../lib/stream';
+import { getTaskViewHash } from '../lib/stream';
 
 export class Tasks extends APIResource {
   /**
@@ -131,29 +131,26 @@ export class Tasks extends APIResource {
     config: { interval: number },
     options?: RequestOptions,
   ): AsyncGenerator<{ event: 'status'; data: TaskView }> {
-    const tick: { current: number } = { current: 0 };
-    const state: { current: BrowserState } = { current: null };
+    const hash: { current: string | null } = { current: null };
 
     poll: do {
       if (options?.signal?.aborted) {
         break poll;
       }
 
-      tick.current++;
+      const res = await this.retrieve(taskId);
 
-      const status = await this.retrieve(taskId);
+      const resHash = getTaskViewHash(res);
 
-      const [newState, event] = reducer(state.current, { kind: 'status', status });
+      if (hash.current == null || resHash !== hash.current) {
+        hash.current = resHash;
 
-      if (event != null) {
-        yield { event: 'status', data: event };
-
-        if (event.status === 'finished') {
-          break;
-        }
+        yield { event: 'status', data: res };
       }
 
-      state.current = newState;
+      if (res.status === 'finished') {
+        break poll;
+      }
 
       await new Promise((resolve) => setTimeout(resolve, config.interval));
     } while (true);

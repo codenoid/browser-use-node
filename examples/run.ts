@@ -41,7 +41,7 @@ async function structured() {
   const rsp = await browseruse.tasks.run({
     task: 'Search for the top 10 Hacker News posts and return the title, url, and score',
     schema: TaskOutput,
-    agentSettings: { llm: 'gemini-2.5-flash' },
+    agentSettings: { llm: 'gpt-4.1' },
   });
 
   const posts = rsp.parsedOutput?.posts;

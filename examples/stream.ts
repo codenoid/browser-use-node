@@ -25,6 +25,10 @@ async function basic() {
     console.log(
       `Basic: ${msg.data.status} ${msg.data.session.liveUrl} ${msg.data.steps[msg.data.steps.length - 1]?.nextGoal}`,
     );
+
+    if (msg.data.status === 'finished') {
+      console.log(`Basic: ${msg.data.doneOutput}`);
+    }
   }
 
   console.log('\nBasic: Stream completed');
@@ -50,7 +54,7 @@ async function structured() {
   const task = await browseruse.tasks.create({
     task: 'Extract top 10 Hacker News posts and return the title, url, and score',
     schema: TaskOutput,
-    agentSettings: { llm: 'gemini-2.5-flash' },
+    agentSettings: { llm: 'gpt-4.1' },
   });
 
   const stream = browseruse.tasks.stream({
