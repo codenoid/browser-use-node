@@ -13,6 +13,7 @@ import {
   type TaskViewWithSchema,
 } from '../lib/parse';
 import { getTaskViewHash } from '../lib/stream';
+import { ExhaustiveSwitchCheck } from '../lib/types';
 
 export class Tasks extends APIResource {
   /**
@@ -148,11 +149,17 @@ export class Tasks extends APIResource {
         yield { event: 'status', data: res };
       }
 
-      if (res.status === 'finished') {
-        break poll;
+      switch (res.status) {
+        case 'finished':
+        case 'stopped':
+        case 'paused':
+          break poll;
+        case 'started':
+          await new Promise((resolve) => setTimeout(resolve, config.interval));
+          break;
+        default:
+          throw new ExhaustiveSwitchCheck(res.status);
       }
-
-      await new Promise((resolve) => setTimeout(resolve, config.interval));
     } while (true);
   }
 
