@@ -27,7 +27,6 @@ async function basic() {
 const HackerNewsResponse = z.object({
   title: z.string(),
   url: z.string(),
-  score: z.number(),
 });
 
 const TaskOutput = z.object({
@@ -39,7 +38,7 @@ async function structured() {
 
   // Create Task
   const rsp = await browseruse.tasks.run({
-    task: 'Search for the top 10 Hacker News posts and return the title, url, and score',
+    task: 'Search for the top 10 Hacker News posts and return the title and url!',
     schema: TaskOutput,
     agentSettings: { llm: 'gpt-4.1' },
   });
@@ -53,7 +52,7 @@ async function structured() {
   console.log(`Structured: Top Hacker News posts:`);
 
   for (const post of posts) {
-    console.log(`${post.title} (${post.score}) - ${post.url}`);
+    console.log(` - ${post.title} - ${post.url}`);
   }
 
   console.log(`\nStructured: DONE`);
