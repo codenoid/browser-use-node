@@ -12,8 +12,8 @@ import {
   type TaskCreateParamsWithSchema,
   type TaskViewWithSchema,
 } from '../lib/parse';
-import { BrowserState, reducer } from '../lib/stream';
-import * as TasksAPI from './tasks';
+import { getTaskViewHash } from '../lib/stream';
+import { ExhaustiveSwitchCheck } from '../lib/types';
 
 export class Tasks extends APIResource {
   /**
@@ -132,31 +132,34 @@ export class Tasks extends APIResource {
     config: { interval: number },
     options?: RequestOptions,
   ): AsyncGenerator<{ event: 'status'; data: TaskView }> {
-    const tick: { current: number } = { current: 0 };
-    const state: { current: BrowserState } = { current: null };
+    const hash: { current: string | null } = { current: null };
 
     poll: do {
       if (options?.signal?.aborted) {
         break poll;
       }
 
-      tick.current++;
+      const res = await this.retrieve(taskId);
 
-      const status = await this.retrieve(taskId);
+      const resHash = getTaskViewHash(res);
 
-      const [newState, event] = reducer(state.current, { kind: 'status', status });
+      if (hash.current == null || resHash !== hash.current) {
+        hash.current = resHash;
 
-      if (event != null) {
-        yield { event: 'status', data: event };
-
-        if (event.status === 'finished') {
-          break;
-        }
+        yield { event: 'status', data: res };
       }
 
-      state.current = newState;
-
-      await new Promise((resolve) => setTimeout(resolve, config.interval));
+      switch (res.status) {
+        case 'finished':
+        case 'stopped':
+        case 'paused':
+          break poll;
+        case 'started':
+          await new Promise((resolve) => setTimeout(resolve, config.interval));
+          break;
+        default:
+          throw new ExhaustiveSwitchCheck(res.status);
+      }
     } while (true);
   }
 
@@ -172,8 +175,6 @@ export class Tasks extends APIResource {
     body: string | { taskId: string; schema: ZodType },
     options?: RequestOptions,
   ): AsyncGenerator<unknown> {
-    let req: TaskCreateParams;
-
     const taskId = typeof body === 'object' ? body.taskId : body;
 
     for await (const msg of this.watch(taskId, { interval: 500 }, options)) {

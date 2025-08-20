@@ -13,8 +13,8 @@ export function stringifyStructuredOutput<T extends ZodType>(schema: T): string 
 
 // RETRIEVE
 
-export type TaskViewWithSchema<T extends ZodType> = Omit<TaskView, 'doneOutput'> & {
-  doneOutput: z.output<T> | null;
+export type TaskViewWithSchema<T extends ZodType> = TaskView & {
+  parsedOutput: z.output<T> | null;
 };
 
 export function parseStructuredTaskOutput<T extends ZodType>(
@@ -22,7 +22,7 @@ export function parseStructuredTaskOutput<T extends ZodType>(
   schema: T,
 ): TaskViewWithSchema<T> {
   if (res.doneOutput == null) {
-    return { ...res, doneOutput: null };
+    return { ...res, parsedOutput: null };
   }
 
   try {
@@ -33,12 +33,12 @@ export function parseStructuredTaskOutput<T extends ZodType>(
       throw new Error(`Invalid structured output: ${response.error.message}`);
     }
 
-    return { ...res, doneOutput: response.data };
+    return { ...res, parsedOutput: response.data };
   } catch (e) {
     if (e instanceof SyntaxError) {
       return {
         ...res,
-        doneOutput: null,
+        parsedOutput: null,
       };
     }
     throw e;
