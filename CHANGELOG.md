@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.2 (2025-08-21)
+
+Full Changelog: [v1.1.1...v1.1.2](https://github.com/browser-use/browser-use-node/compare/v1.1.1...v1.1.2)
+
+### Bug Fixes
+
+* Improve Quick Start Section ([a1b0539](https://github.com/browser-use/browser-use-node/commit/a1b0539a5e04c9b31fd4f1e798d71dd5d02d1976))
+
 ## 1.1.1 (2025-08-20)
 
 Full Changelog: [v1.1.0...v1.1.1](https://github.com/browser-use/browser-use-node/compare/v1.1.0...v1.1.1)
