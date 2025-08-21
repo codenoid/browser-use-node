@@ -4,12 +4,18 @@
 pnpm add browser-use-sdk
 ```
 
-## QuickStart
+## Two-Step QuickStart
+
+1. ☝️ Get your API Key at [Browser Use Cloud](https://cloud.browser-use.com)...
+
+1. ✌️ Automate the web!
 
 ```ts
 import BrowserUse from 'browser-use-sdk';
 
-const client = new BrowserUse();
+const client = new BrowserUse({
+  apiKey: 'bu_...',
+});
 
 const result = await client.tasks.run({
   task: 'Search for the top 10 Hacker News posts and return the title and url.',
