@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.3 (2025-08-22)
+
+Full Changelog: [v1.1.2...v1.1.3](https://github.com/browser-use/browser-use-node/compare/v1.1.2...v1.1.3)
+
+### Chores
+
+* add package to package.json ([28293f9](https://github.com/browser-use/browser-use-node/commit/28293f9d1f3807dd8580450c5ba98a18392191be))
+* **client:** qualify global Blob ([944dd90](https://github.com/browser-use/browser-use-node/commit/944dd905151ef5030991f8dfd0168cf88d940068))
+
 ## 1.1.2 (2025-08-21)
 
 Full Changelog: [v1.1.1...v1.1.2](https://github.com/browser-use/browser-use-node/compare/v1.1.1...v1.1.2)
