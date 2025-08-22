@@ -121,6 +121,8 @@ export async function POST(req: Request) {
 }
 ```
 
+## Advanced Usage
+
 ## Handling errors
 
 When the library is unable to connect to the API,
@@ -196,8 +198,6 @@ await client.tasks.create({ task: 'Search for the top 10 Hacker News posts and r
 On timeout, an `APIConnectionTimeoutError` is thrown.
 
 Note that requests which time out will be [retried twice by default](#retries).
-
-## Advanced Usage
 
 ### Accessing raw Response data (e.g., headers)
 
@@ -276,49 +276,6 @@ const client = new BrowserUse({
   logLevel: 'debug', // Send all messages to pino, allowing it to filter
 });
 ```
-
-### Making custom/undocumented requests
-
-This library is typed for convenient access to the documented API. If you need to access undocumented
-endpoints, params, or response properties, the library can still be used.
-
-#### Undocumented endpoints
-
-To make requests to undocumented endpoints, you can use `client.get`, `client.post`, and other HTTP verbs.
-Options on the client, such as retries, will be respected when making these requests.
-
-```ts
-await client.post('/some/path', {
-  body: { some_prop: 'foo' },
-  query: { some_query_arg: 'bar' },
-});
-```
-
-#### Undocumented request params
-
-To make requests using undocumented parameters, you may use `// @ts-expect-error` on the undocumented
-parameter. This library doesn't validate at runtime that the request matches the type, so any extra values you
-send will be sent as-is.
-
-```ts
-client.tasks.create({
-  // ...
-  // @ts-expect-error baz is not yet public
-  baz: 'undocumented option',
-});
-```
-
-For requests with the `GET` verb, any extra params will be in the query, all other requests will send the
-extra param in the body.
-
-If you want to explicitly send an extra argument, you can do so with the `query`, `body`, and `headers` request
-options.
-
-#### Undocumented response properties
-
-To access undocumented response properties, you may access the response object with `// @ts-expect-error` on
-the response object, or cast the response object to the requisite type. Like the request params, we do not
-validate or strip extra properties from the response from the API.
 
 ### Customizing the fetch client
 
@@ -400,18 +357,6 @@ const client = new BrowserUse({
 ```
 
 ## Frequently Asked Questions
-
-## Semantic versioning
-
-This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) conventions, though certain backwards-incompatible changes may be released as minor versions:
-
-1. Changes that only affect static types, without breaking runtime behavior.
-2. Changes to library internals which are technically public but not intended or documented for external use. _(Please open a GitHub issue to let us know if you are relying on such internals.)_
-3. Changes that we do not expect to impact the vast majority of users in practice.
-
-We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
-
-We are keen for your feedback; please open an [issue](https://www.github.com/browser-use/browser-use-node/issues) with questions, bugs, or suggestions.
 
 ## Requirements
 
