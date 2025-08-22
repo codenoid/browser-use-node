@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0 (2025-08-22)
+
+Full Changelog: [v1.1.3...v1.2.0](https://github.com/browser-use/browser-use-node/compare/v1.1.3...v1.2.0)
+
+### Features
+
+* NextJS Utils ([b5e1006](https://github.com/browser-use/browser-use-node/commit/b5e10060a064de9a9454fa90e461f09154094742))
+
 ## 1.1.3 (2025-08-22)
 
 Full Changelog: [v1.1.2...v1.1.3](https://github.com/browser-use/browser-use-node/compare/v1.1.2...v1.1.3)
