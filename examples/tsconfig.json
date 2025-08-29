@@ -1,0 +1,14 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": null,
+        "rootDir": "..",
+        "baseUrl": "..",
+        "paths": {
+            "browser-use-sdk": ["src"],
+            "browser-use-sdk/*": ["src/*"]
+        }
+    },
+    "include": ["../src", "../examples"],
+    "exclude": []
+}
