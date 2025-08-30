@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import stringify from "fast-json-stable-stringify";
 import type { RequestOptions } from "node:http";
 import z, { type ZodType } from "zod";
+import { toJSONSchema } from "zod/v4";
 
 import type { BrowserUse } from "index.js";
 import type { BrowserUseTasks } from "wrapper/api/BrowserUseTasks.js";
@@ -15,7 +16,7 @@ export type CreateTaskRequestWithSchema<T extends ZodType> = Omit<CreateTaskRequ
 };
 
 export function stringifyStructuredOutput<T extends ZodType>(schema: T): string {
-    return JSON.stringify(z.toJSONSchema(schema));
+    return JSON.stringify(toJSONSchema(schema));
 }
 
 // RETRIEVE
